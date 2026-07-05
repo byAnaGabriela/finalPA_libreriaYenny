@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public abstract class Usuario {
 
-    private String id;
+    private int id;
     private Rol rol;
     private String nombre;
     private String apellido;
@@ -35,12 +35,8 @@ public abstract class Usuario {
         this.estado = estado;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public Rol getRol() {
@@ -127,14 +123,14 @@ public abstract class Usuario {
     public String toString() {
         return "Usuario:" +
                 "\nRol: " + rol +
-                "\nNombre: '" + nombre +
-                "\nApellido: '" + apellido +
-                "\nDni: '" + dni +
-                "\nCelular: '" + celular +
-                "\nMail: '" + mail+
-                "\nNombre de usuario: '" + nombreUsuario +
-                "\nContraseña: '" + contrasena +
+                "\nNombre: " + nombre +
+                "\nApellido: " + apellido +
+                "\nDni: " + dni +
+                "\nCelular: " + celular +
+                "\nMail: " + mail+
+                "\nNombre de usuario: " + nombreUsuario +
+                "\nContraseña: " + contrasena +
                 "\nFecha de registro: " + fechaRegistro +
-                "\nEstado=" + estado;
+                "\nEstado: " + estado;
     }
 }

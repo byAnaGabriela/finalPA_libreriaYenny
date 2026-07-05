@@ -1,0 +1,32 @@
+package bll;
+
+public class Idioma {
+
+    private int id;
+    private String nombre;
+
+    public Idioma() {
+    }
+
+    public Idioma(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    @Override
+    public String toString() {
+        return "Idioma: " +
+                "\nNombre: " + nombre;
+    }
+}

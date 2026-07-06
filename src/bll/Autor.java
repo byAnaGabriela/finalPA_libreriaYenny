@@ -14,6 +14,12 @@ public class Autor {
         this.apellido = apellido;
     }
 
+    public Autor(int id, String nombre, String apellido) {
+        this.id = id;
+        this.nombre = nombre;
+        this.apellido = apellido;
+    }
+
     public int getId() {
         return id;
     }

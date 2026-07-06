@@ -6,6 +6,7 @@ public class Autor {
     private String nombre;
     private String apellido;
 
+    //Constructores☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public Autor() {
     }
 
@@ -20,6 +21,7 @@ public class Autor {
         this.apellido = apellido;
     }
 
+    //Getters y setters☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public int getId() {
         return id;
     }
@@ -40,10 +42,12 @@ public class Autor {
         this.apellido = apellido;
     }
 
+    //ToString☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     @Override
     public String toString() {
         return "Autor: " +
                 "\nNombre: " + nombre +
                 "\nApellido: " + apellido;
     }
+
 }

@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 public class Administrador extends Usuario {
 
+    //Constructores☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public Administrador() {
     }
 

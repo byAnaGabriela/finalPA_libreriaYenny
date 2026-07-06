@@ -5,6 +5,7 @@ public class Idioma {
     private int id;
     private String nombre;
 
+    //Constructores☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public Idioma() {
     }
 
@@ -17,6 +18,7 @@ public class Idioma {
         this.nombre = nombre;
     }
 
+    //Getters y setters☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public int getId() {
         return id;
     }
@@ -29,9 +31,11 @@ public class Idioma {
         this.nombre = nombre;
     }
 
+    //ToString☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     @Override
     public String toString() {
         return "Idioma: " +
                 "\nNombre: " + nombre;
     }
+
 }

@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 public class Vendedor extends Usuario {
 
+    //Constructores☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public Vendedor() {
     }
 

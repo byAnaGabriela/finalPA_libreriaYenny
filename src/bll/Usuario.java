@@ -19,6 +19,7 @@ public abstract class Usuario {
     private LocalDateTime fechaRegistro;
     private EstadoUsuario estado;
 
+    //Constructores☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public Usuario() {
     }
 
@@ -49,6 +50,7 @@ public abstract class Usuario {
         this.estado = estado;
     }
 
+    //Getters y setters☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public int getId() {
         return id;
     }
@@ -133,6 +135,7 @@ public abstract class Usuario {
         this.estado = estado;
     }
 
+    //ToString☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     @Override
     public String toString() {
         return "Usuario:" +
@@ -147,4 +150,5 @@ public abstract class Usuario {
                 "\nFecha de registro: " + fechaRegistro +
                 "\nEstado: " + estado;
     }
+
 }

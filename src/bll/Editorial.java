@@ -5,6 +5,7 @@ public class Editorial {
     private int id;
     private String nombre;
 
+    //Constructores☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public Editorial() {
     }
 
@@ -17,6 +18,7 @@ public class Editorial {
         this.nombre = nombre;
     }
 
+    //Getters y setters☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public int getId() {
         return id;
     }
@@ -29,6 +31,7 @@ public class Editorial {
         this.nombre = nombre;
     }
 
+    //ToString☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     @Override
     public String toString() {
         return "Editorial: " +

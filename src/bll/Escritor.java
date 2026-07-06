@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 public class Escritor extends Usuario {
 
+    //Constructores☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public Escritor() {
     }
 

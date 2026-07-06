@@ -19,6 +19,7 @@ public class Libro {
     private Idioma idioma;
     private List<Autor> autores;
 
+    //Constructores☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public Libro() {
     }
 
@@ -51,6 +52,7 @@ public class Libro {
         this.autores = new ArrayList<>();
     }
 
+    //Getters y setters☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public int getId() {
         return id;
     }
@@ -143,6 +145,7 @@ public class Libro {
         this.autores = autores;
     }
 
+    //ToString☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     @Override
     public String toString() {
         return "Libro: " +
@@ -158,4 +161,5 @@ public class Libro {
                 "\nIdioma: " + idioma.getNombre() +
                 "\nAutores: " + autores;
     }
+
 }

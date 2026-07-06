@@ -12,6 +12,11 @@ public class Genero {
         this.nombre = nombre;
     }
 
+    public Genero(int id, String nombre) {
+        this.id = id;
+        this.nombre = nombre;
+    }
+
     public int getId() {
         return id;
     }

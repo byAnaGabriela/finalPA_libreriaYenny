@@ -14,4 +14,8 @@ public class Vendedor extends Usuario {
         super(Rol.VENDEDOR, nombre, apellido, dni, celular, mail, nombreUsuario, contrasena, fechaRegistro, estado);
     }
 
+    public Vendedor(int id, Rol rol, String nombre, String apellido, String dni, String celular, String mail, String nombreUsuario, String contrasena, LocalDateTime fechaRegistro, EstadoUsuario estado) {
+        super(id, Rol.VENDEDOR, nombre, apellido, dni, celular, mail, nombreUsuario, contrasena, fechaRegistro, estado);
+    }
+
 }

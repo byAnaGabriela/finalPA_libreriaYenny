@@ -12,6 +12,11 @@ public class Idioma {
         this.nombre = nombre;
     }
 
+    public Idioma(int id, String nombre) {
+        this.id = id;
+        this.nombre = nombre;
+    }
+
     public int getId() {
         return id;
     }

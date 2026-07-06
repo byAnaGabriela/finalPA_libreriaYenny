@@ -35,6 +35,20 @@ public abstract class Usuario {
         this.estado = estado;
     }
 
+    public Usuario(int id, Rol rol, String nombre, String apellido, String dni, String celular, String mail, String nombreUsuario, String contrasena, LocalDateTime fechaRegistro, EstadoUsuario estado) {
+        this.id = id;
+        this.rol = rol;
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.dni = dni;
+        this.celular = celular;
+        this.mail = mail;
+        this.nombreUsuario = nombreUsuario;
+        this.contrasena = contrasena;
+        this.fechaRegistro = fechaRegistro;
+        this.estado = estado;
+    }
+
     public int getId() {
         return id;
     }

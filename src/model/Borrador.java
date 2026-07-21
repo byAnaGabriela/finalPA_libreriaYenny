@@ -1,4 +1,4 @@
-package bll;
+package model;
 
 import java.time.LocalDateTime;
 

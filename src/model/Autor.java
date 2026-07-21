@@ -1,24 +1,27 @@
-package bll;
+package model;
 
 public class Autor {
 
     private int id;
     private String nombre;
     private String apellido;
+    private Usuario escritorVinculado;
 
     //Constructores☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public Autor() {
     }
 
-    public Autor(String nombre, String apellido) {
+    public Autor(String nombre, String apellido, Usuario escritorVinculado) {
         this.nombre = nombre;
         this.apellido = apellido;
+        this.escritorVinculado = escritorVinculado;
     }
 
-    public Autor(int id, String nombre, String apellido) {
+    public Autor(int id, String nombre, String apellido, Usuario escritorVinculado) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
+        this.escritorVinculado = escritorVinculado;
     }
 
     //Getters y setters☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
@@ -42,12 +45,21 @@ public class Autor {
         this.apellido = apellido;
     }
 
+    public Usuario getEscritorVinculado() {
+        return escritorVinculado;
+    }
+
+    public void setEscritorVinculado(Usuario escritorVinculado) {
+        this.escritorVinculado = escritorVinculado;
+    }
+
     //ToString☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     @Override
     public String toString() {
         return "Autor: " +
                 "\nNombre: " + nombre +
-                "\nApellido: " + apellido;
+                "\nApellido: " + apellido +
+                "\nEscritor Vinculado: " + escritorVinculado.getNombreUsuario();
     }
 
 }

@@ -1,11 +1,11 @@
-package bll;
+package model;
 
-import enums.Rol;
-import enums.EstadoUsuario;
+import model.enums.Rol;
+import model.enums.EstadoUsuario;
 
 import java.time.LocalDateTime;
 
-public abstract class Usuario {
+public class Usuario {
 
     private int id;
     private Rol rol;

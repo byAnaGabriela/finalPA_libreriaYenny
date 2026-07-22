@@ -1,4 +1,4 @@
-package bll;
+package model;
 
 import java.time.LocalDateTime;
 
@@ -7,8 +7,8 @@ public class Mensaje {
     private int id;
     private String texto;
     private LocalDateTime fechaEnvio;
-    private Propuesta propuesta;
     private Usuario usuario;
+    private Propuesta propuesta;
     private Mensaje mensajePadre;
 
     //Constructores☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
@@ -35,6 +35,10 @@ public class Mensaje {
     //Getters y setters☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTexto() {

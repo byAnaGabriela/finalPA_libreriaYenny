@@ -1,19 +1,19 @@
-package bll;
+package model;
 
-public class Genero {
+public class Idioma {
 
-    private int  id;
+    private int id;
     private String nombre;
 
     //Constructores☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
-    public Genero() {
+    public Idioma() {
     }
 
-    public Genero(String nombre) {
+    public Idioma(String nombre) {
         this.nombre = nombre;
     }
 
-    public Genero(int id, String nombre) {
+    public Idioma(int id, String nombre) {
         this.id = id;
         this.nombre = nombre;
     }
@@ -21,6 +21,10 @@ public class Genero {
     //Getters y setters☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getNombre() {
@@ -34,7 +38,7 @@ public class Genero {
     //ToString☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     @Override
     public String toString() {
-        return "Género: " +
+        return "Idioma: " +
                 "\nNombre: " + nombre;
     }
 

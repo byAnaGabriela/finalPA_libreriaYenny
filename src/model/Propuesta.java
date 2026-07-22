@@ -1,4 +1,6 @@
-package bll;
+package model;
+
+import model.enums.EstadoPropuesta;
 
 import java.time.LocalDateTime;
 
@@ -8,15 +10,15 @@ public class Propuesta {
     private String titulo;
     private String descripcion;
     private LocalDateTime fechaCreacion;
-    private Escritor escritor;
-    private Editor editor;
+    private Usuario escritor;
+    private Usuario editor;
     private EstadoPropuesta estado;
 
     //Constructores☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public Propuesta() {
     }
 
-    public Propuesta(String titulo, String descripcion, LocalDateTime fechaCreacion, Escritor escritor, Editor editor, EstadoPropuesta estado) {
+    public Propuesta(String titulo, String descripcion, LocalDateTime fechaCreacion, Usuario escritor, Usuario editor, EstadoPropuesta estado) {
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.fechaCreacion = fechaCreacion;
@@ -25,7 +27,7 @@ public class Propuesta {
         this.estado = estado;
     }
 
-    public Propuesta(int id, String titulo, String descripcion, LocalDateTime fechaCreacion, Escritor escritor, Editor editor, EstadoPropuesta estado) {
+    public Propuesta(int id, String titulo, String descripcion, LocalDateTime fechaCreacion, Usuario escritor, Usuario editor, EstadoPropuesta estado) {
         this.id = id;
         this.titulo = titulo;
         this.descripcion = descripcion;
@@ -38,6 +40,10 @@ public class Propuesta {
     //Getters y setters☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTitulo() {
@@ -64,19 +70,19 @@ public class Propuesta {
         this.fechaCreacion = fechaCreacion;
     }
 
-    public Escritor getEscritor() {
+    public Usuario getEscritor() {
         return escritor;
     }
 
-    public void setEscritor(Escritor escritor) {
+    public void setEscritor(Usuario escritor) {
         this.escritor = escritor;
     }
 
-    public Editor getEditor() {
+    public Usuario getEditor() {
         return editor;
     }
 
-    public void setEditor(Editor editor) {
+    public void setEditor(Usuario editor) {
         this.editor = editor;
     }
 
@@ -97,7 +103,7 @@ public class Propuesta {
                 "\nFecha de creación: " + fechaCreacion +
                 "\nEscritor: " + escritor.getNombre() +
                 "\nEditor asignado: " + editor.getNombre() +
-                "\nEstado: " + estado.getNombre();
+                "\nEstado: " + estado;
     }
 
 }

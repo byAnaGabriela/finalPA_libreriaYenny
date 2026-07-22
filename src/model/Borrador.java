@@ -34,6 +34,10 @@ public class Borrador {
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public int getVersion() {
         return version;
     }

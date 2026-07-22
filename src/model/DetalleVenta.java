@@ -20,13 +20,17 @@ public class DetalleVenta {
         this.precioUnitario = precioUnitario;
     }
 
-    //Constructores☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
-    public int getIdVenta() {
-        return venta.getId();
+    //Getters y setters☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
+    public Venta getVenta() {
+        return venta;
     }
 
-    public int getIdLibro() {
-        return libro.getId();
+    public void setVenta(Venta venta) {
+        this.venta = venta;
+    }
+
+    public Libro getLibro() {
+        return libro;
     }
 
     public void setLibro(Libro libro) {

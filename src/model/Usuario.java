@@ -55,6 +55,10 @@ public class Usuario {
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public Rol getRol() {
         return rol;
     }
@@ -146,7 +150,6 @@ public class Usuario {
                 "\nCelular: " + celular +
                 "\nMail: " + mail+
                 "\nNombre de usuario: " + nombreUsuario +
-                "\nContraseña: " + contrasena +
                 "\nFecha de registro: " + fechaRegistro +
                 "\nEstado: " + estado;
     }

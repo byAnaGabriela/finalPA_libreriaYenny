@@ -1,4 +1,4 @@
-package dll;
+package dao;
 
 import java.sql.DriverManager;
 import java.sql.Connection;
@@ -14,10 +14,10 @@ public class Conexion {
 
     private Conexion() {
         try{
-            connection = (Connection) DriverManager.getConnection(URL,USER, PASSWORD);
-            System.out.println("Conectado");
+            connection = DriverManager.getConnection(URL,USER, PASSWORD);
+            System.out.println("Conectado a la base de datos");
         } catch (SQLException e) {
-            System.out.println("No se pudo establecer la conexión");
+            throw  new RuntimeException("No se pudo establecer la conexión a la base de datos", e);
         }
     }
 

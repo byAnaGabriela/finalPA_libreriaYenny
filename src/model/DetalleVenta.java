@@ -1,17 +1,19 @@
-package bll;
+package model;
+
+import java.math.BigDecimal;
 
 public class DetalleVenta {
 
     private Venta venta;
     private Libro libro;
     private int cantidadVendida;
-    private double precioUnitario;
+    private BigDecimal precioUnitario;
 
     //Constructores☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public DetalleVenta() {
     }
 
-    public DetalleVenta(Venta venta, Libro libro, int cantidadVendida, double precioUnitario) {
+    public DetalleVenta(Venta venta, Libro libro, int cantidadVendida, BigDecimal precioUnitario) {
         this.venta = venta;
         this.libro = libro;
         this.cantidadVendida = cantidadVendida;
@@ -39,11 +41,11 @@ public class DetalleVenta {
         this.cantidadVendida = cantidadVendida;
     }
 
-    public double getPrecioUnitario() {
+    public BigDecimal getPrecioUnitario() {
         return precioUnitario;
     }
 
-    public void setPrecioUnitario(double precioUnitario) {
+    public void setPrecioUnitario(BigDecimal precioUnitario) {
         this.precioUnitario = precioUnitario;
     }
 

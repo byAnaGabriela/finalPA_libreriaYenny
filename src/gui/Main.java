@@ -1,6 +1,6 @@
 package gui;
 
-import dll.Conexion;
+import dao.Conexion;
 
 import java.sql.Connection;
 

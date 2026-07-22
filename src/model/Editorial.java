@@ -1,4 +1,4 @@
-package bll;
+package model;
 
 public class Editorial {
 

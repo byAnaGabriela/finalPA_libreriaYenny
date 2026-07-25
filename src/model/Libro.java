@@ -14,7 +14,7 @@ public class Libro {
     private BigDecimal precio;
     private LocalDate fechaPublicacion;
     private int cantidadDisponible;
-    private int stockMinimo;
+    private int stockMinimo = 5;
     private Editorial editorial;
     private Categoria categoria;
     private Genero genero;
@@ -34,7 +34,6 @@ public class Libro {
         this.precio = precio;
         this.fechaPublicacion = fechaPublicacion;
         this.cantidadDisponible = cantidadDisponible;
-        this.stockMinimo = 5;
         this.editorial = editorial;
         this.categoria = categoria;
         this.genero = genero;
@@ -52,7 +51,6 @@ public class Libro {
         this.precio = precio;
         this.fechaPublicacion = fechaPublicacion;
         this.cantidadDisponible = cantidadDisponible;
-        this.stockMinimo = 5;
         this.editorial = editorial;
         this.categoria = categoria;
         this.genero = genero;

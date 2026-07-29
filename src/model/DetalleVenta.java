@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 public class DetalleVenta {
 
+    private int id;
     private Venta venta;
     private Libro libro;
     private int cantidadVendida;
@@ -20,7 +21,23 @@ public class DetalleVenta {
         this.precioUnitario = precioUnitario;
     }
 
+    public DetalleVenta(int id, Venta venta, Libro libro, int cantidadVendida, BigDecimal precioUnitario) {
+        this.id = id;
+        this.venta = venta;
+        this.libro = libro;
+        this.cantidadVendida = cantidadVendida;
+        this.precioUnitario = precioUnitario;
+    }
+
     //Getters y setters☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public Venta getVenta() {
         return venta;
     }

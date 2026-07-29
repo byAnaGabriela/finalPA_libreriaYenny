@@ -15,18 +15,18 @@ public class Libro {
     private LocalDate fechaPublicacion;
     private int cantidadDisponible;
     private int stockMinimo = 5;
+    private Autor autor;
     private Editorial editorial;
     private Categoria categoria;
     private Genero genero;
     private Idioma idioma;
-    private List<Autor> autores;
     private Propuesta propuestaOrigen;
 
     //Constructores☆゜・。。・゜゜・。。・゜★゜・。。・゜゜・。。・゜☆゜・。。・゜゜・。。・゜★
     public Libro() {
     }
 
-    public Libro(String isbn, String titulo, String sinopsis, int cantidadPaginas, BigDecimal precio, LocalDate fechaPublicacion, int cantidadDisponible, Editorial editorial, Categoria categoria, Genero genero, Idioma idioma, List<Autor> autores, Propuesta propuestaOrigen) {
+    public Libro(String isbn, String titulo, String sinopsis, int cantidadPaginas, BigDecimal precio, LocalDate fechaPublicacion, int cantidadDisponible, Autor autor, Editorial editorial, Categoria categoria, Genero genero, Idioma idioma, Propuesta propuestaOrigen) {
         this.isbn = isbn;
         this.titulo = titulo;
         this.sinopsis = sinopsis;
@@ -34,15 +34,15 @@ public class Libro {
         this.precio = precio;
         this.fechaPublicacion = fechaPublicacion;
         this.cantidadDisponible = cantidadDisponible;
+        this.autor = autor;
         this.editorial = editorial;
         this.categoria = categoria;
         this.genero = genero;
         this.idioma = idioma;
-        this.autores = autores;
         this.propuestaOrigen = propuestaOrigen;
     }
 
-    public Libro(int id, String isbn, String titulo, String sinopsis, int cantidadPaginas, BigDecimal precio, LocalDate fechaPublicacion, int cantidadDisponible, Editorial editorial, Categoria categoria, Genero genero, Idioma idioma, List<Autor> autores, Propuesta propuestaOrigen) {
+    public Libro(int id, String isbn, String titulo, String sinopsis, int cantidadPaginas, BigDecimal precio, LocalDate fechaPublicacion, int cantidadDisponible, Autor autor, Editorial editorial, Categoria categoria, Genero genero, Idioma idioma, Propuesta propuestaOrigen) {
         this.id = id;
         this.isbn = isbn;
         this.titulo = titulo;
@@ -51,11 +51,11 @@ public class Libro {
         this.precio = precio;
         this.fechaPublicacion = fechaPublicacion;
         this.cantidadDisponible = cantidadDisponible;
+        this.autor = autor;
         this.editorial = editorial;
         this.categoria = categoria;
         this.genero = genero;
         this.idioma = idioma;
-        this.autores = autores;
         this.propuestaOrigen = propuestaOrigen;
     }
 
@@ -132,6 +132,14 @@ public class Libro {
         this.stockMinimo = stockMinimo;
     }
 
+    public Autor getAutor() {
+        return autor;
+    }
+
+    public void setAutor(Autor autor) {
+        this.autor = autor;
+    }
+
     public Editorial getEditorial() {
         return editorial;
     }
@@ -164,14 +172,6 @@ public class Libro {
         this.idioma = idioma;
     }
 
-    public List<Autor> getAutores() {
-        return autores;
-    }
-
-    public void setAutores(List<Autor> autores) {
-        this.autores = autores;
-    }
-
     public Propuesta getPropuestaOrigen() {
         return propuestaOrigen;
     }
@@ -200,11 +200,11 @@ public class Libro {
                 "\nPrecio: " + precio +
                 "\nFecha publicación: " + fechaPublicacion +
                 "\nCantidad disponible: " + cantidadDisponible +
+                "\nAutor: " + autor +
                 "\nEditorial: " + editorial +
                 "\nCategoría: " + categoria +
                 "\nGénero: " + genero +
                 "\nIdioma: " + idioma +
-                "\nAutores: " + autores +
                 "\nPropuesta origen: " + propuestaOrigen;
     }
 

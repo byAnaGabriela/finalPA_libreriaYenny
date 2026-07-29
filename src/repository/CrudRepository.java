@@ -6,8 +6,8 @@ public interface CrudRepository<T> {
 
     void insertar(T entidad);
     void actualizar(T entidad);
-    void eliminar(int id);
+    void eliminar(T entidad);
     T buscarPorId(int id);
-    List<T> buscarTodos();
+    List<T> listarTodos();
 
 }

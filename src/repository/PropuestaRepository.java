@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface PropuestaRepository extends CrudRepository<Propuesta> {
 
-    List<Propuesta> buscarPorEscritor(int idEscritor);
-    List<Propuesta> buscarPorEstado(EstadoPropuesta estado);
+    List<Propuesta> listarPorEscritor(int idEscritor);
+    List<Propuesta> listarPorEstado(EstadoPropuesta estado);
 
 }

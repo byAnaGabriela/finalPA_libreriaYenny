@@ -48,7 +48,16 @@ public class CategoriaRepositoryImpl extends RepositoryBase<Categoria> implement
 
     @Override
     public void eliminar(Categoria categoria) {
+        // Consulta para borrar una categoría específica usando el id
+        String sql = "DELETE FROM categoria WHERE id_categoria = ?";
 
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, categoria.getId()); // Asigno el id al ? de la consulta
+            ps.executeUpdate(); // Se ejecuta la instrucción para eliminar la editorial
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo eliminar la categoría", e);
+        }
     }
 
     @Override

@@ -36,7 +36,7 @@ public class IdiomaRepositoryImpl extends RepositoryBase<Idioma> implements Idio
         // Actualiza el nombre de un idioma específico usando el id
         String sql = "UPDATE idioma SET nombre = ? WHERE id_idioma = ?";
 
-        // Preparo la sentencia usando la conexión actual
+        // Preparo la sentencia usando la conexión
         try(PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, idioma.getNombre());
             ps.setInt(2, idioma.getId());
@@ -49,7 +49,16 @@ public class IdiomaRepositoryImpl extends RepositoryBase<Idioma> implements Idio
 
     @Override
     public void eliminar(Idioma idioma) {
+        // Consulta para borrar un idioma específico usando el id
+        String sql = "DELETE FROM idioma WHERE id_idioma = ?";
 
+        try(PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idioma.getId());
+            ps.executeUpdate(); // Se ejecuta la instrucción para eliminar el idioma
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo eliminar el idioma", e);
+        }
     }
 
     @Override

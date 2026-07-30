@@ -4,6 +4,7 @@ import model.Genero;
 import repository.GeneroRepository;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GeneroRepositoryImpl extends RepositoryBase<Genero> implements GeneroRepository {
@@ -80,7 +81,21 @@ public class GeneroRepositoryImpl extends RepositoryBase<Genero> implements Gene
 
     @Override
     public List<Genero> listarTodos() {
-        return null;
+        String sql = "SELECT * FROM genero";
+        List<Genero> generos = new ArrayList<>(); // Creo la lista vacía donde se guardarán los generos
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) { // Preparo y ejecuto la consulta
+
+            // Recorro cada fila que devuelve la BD mientras haya registros
+            while (rs.next()) {
+                generos.add(mapear(rs)); // Transformo cada fila en un objeto con mapear y lo agrego a la BD
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar todos los géneros", e);
+        }
+        return generos; // Devuelvo la lista con los géneros agregados (Si no había registros va a estar vacía)
     }
 
     @Override

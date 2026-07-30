@@ -62,7 +62,21 @@ public class CategoriaRepositoryImpl extends RepositoryBase<Categoria> implement
 
     @Override
     public Categoria buscarPorId(int id) {
-        return null;
+        String sql = "SELECT * FROM categoria WHERE id_categoria = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id); // Reemplazo el ? con el id que recibo
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) { // Si encuentro un registro con ese id, creo el objeto con mapear y lo devuelvo
+                    return mapear(rs);
+                }
+                return null; // Si no encuentro nada, devuelvo null
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar la categoría por id", e);
+        }
     }
 
     @Override
@@ -77,7 +91,10 @@ public class CategoriaRepositoryImpl extends RepositoryBase<Categoria> implement
 
     @Override
     protected Categoria mapear(ResultSet rs) throws SQLException {
-        return null;
+        // Convierto los datos que vienen de la BD en un objeto categoria
+        return new Categoria(
+                rs.getInt("id_categoria"),
+                rs.getString("nombre"));
     }
 
 }

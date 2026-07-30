@@ -62,7 +62,21 @@ public class EditorialRepositoryImpl extends RepositoryBase<Editorial> implement
 
     @Override
     public Editorial buscarPorId(int id) {
-        return null;
+        String sql = "SELECT * FROM editorial WHERE id_editorial = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id); // Reemplazo el ? con el id que recibo
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) { // Si encuentro un registro con ese id, creo el objeto con mapear y lo devuelvo
+                    return mapear(rs);
+                }
+                return null; // Si no encuentro nada, devuelvo null
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar la editorial por id", e);
+        }
     }
 
     @Override
@@ -77,7 +91,10 @@ public class EditorialRepositoryImpl extends RepositoryBase<Editorial> implement
 
     @Override
     protected Editorial mapear(ResultSet rs) throws SQLException {
-        return null;
+        // Convierto los datos que vienen de la BD en un objeto editorial
+        return new Editorial(
+                rs.getInt("id_editorial"),
+                rs.getString("nombre"));
     }
 
 }

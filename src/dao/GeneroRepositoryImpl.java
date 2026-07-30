@@ -33,7 +33,17 @@ public class GeneroRepositoryImpl extends RepositoryBase<Genero> implements Gene
 
     @Override
     public void actualizar(Genero genero) {
+        // Sentencia para actualizar usando el id
+        String sql = "UPDATE genero SET nombre = ? WHERE id_genero = ?";
 
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, genero.getNombre()); // Asigno el primer ? (nombre)
+            ps.setInt(2, genero.getId()); // Asigno el segundo ? (id)
+            ps.executeUpdate(); // Ejecuto la actualización en la BD
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo actualizar el género", e);
+        }
     }
 
     @Override

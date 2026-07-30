@@ -109,7 +109,23 @@ public class IdiomaRepositoryImpl extends RepositoryBase<Idioma> implements Idio
 
     @Override
     public boolean existeNombre(String nombre) {
-        return false;
+        // Si el nombre existe la BD me devuelve un 1, es más eficiente a que me traiga los datos de la tabla
+        String sql = "SELECT 1 FROM idioma WHERE nombre = ?";
+
+        // Abro la conexión y preparo la sentencia
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            // Reemplazo el (?) con el nombre que recibí y quiero validar
+            ps.setString(1, nombre);
+
+            // Ejecuto la consulta y reviso si obtuve algún resultado
+            try (ResultSet rs = ps.executeQuery()) {
+                // Si hay un siguiente registro, significa que el nombre ya existe y devuelve true
+                return rs.next();
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo validar la existencia del idioma", e);
+        }
     }
 
     @Override

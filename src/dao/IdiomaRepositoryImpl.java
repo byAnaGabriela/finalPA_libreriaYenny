@@ -33,7 +33,18 @@ public class IdiomaRepositoryImpl extends RepositoryBase<Idioma> implements Idio
 
     @Override
     public void actualizar(Idioma idioma) {
+        // Actualiza el nombre de un idioma específico usando el id
+        String sql = "UPDATE idioma SET nombre = ? WHERE id_idioma = ?";
 
+        // Preparo la sentencia usando la conexión actual
+        try(PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, idioma.getNombre());
+            ps.setInt(2, idioma.getId());
+            ps.executeUpdate(); // Ejecuto despues de reemplazar los parámetros
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo actualizar el idioma", e);
+        }
     }
 
     @Override

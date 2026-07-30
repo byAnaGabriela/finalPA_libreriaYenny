@@ -61,7 +61,21 @@ public class GeneroRepositoryImpl extends RepositoryBase<Genero> implements Gene
 
     @Override
     public Genero buscarPorId(int id) {
-        return null;
+        String sql = "SELECT * FROM genero WHERE id_genero = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id); // Reemplazo el ? con el id que recibo
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) { // Si encuentro un registro con ese id, creo el objeto con mapear y lo devuelvo
+                    return mapear(rs);
+                }
+                return null; // Si no encuentro nada, devuelvo null
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar el género por id", e);
+        }
     }
 
     @Override
@@ -76,7 +90,10 @@ public class GeneroRepositoryImpl extends RepositoryBase<Genero> implements Gene
 
     @Override
     protected Genero mapear(ResultSet rs) throws SQLException {
-        return null;
+        // Convierto los datos que vienen de la BD en un objeto género
+        return new Genero(
+                rs.getInt("id_genero"),
+                rs.getString("nombre"));
     }
 
 }

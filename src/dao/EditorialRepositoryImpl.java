@@ -4,6 +4,7 @@ import model.Editorial;
 import repository.EditorialRepository;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class EditorialRepositoryImpl extends RepositoryBase<Editorial> implements EditorialRepository {
@@ -81,7 +82,21 @@ public class EditorialRepositoryImpl extends RepositoryBase<Editorial> implement
 
     @Override
     public List<Editorial> listarTodos() {
-        return null;
+        String sql = "SELECT * FROM editorial";
+        List<Editorial> editoriales = new ArrayList<>(); // Creo la lista vacía donde se guardarán las editoriales
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) { // Preparo y ejecuto la consulta
+
+            // Recorro cada fila que devuelve la BD mientras haya registros
+            while (rs.next()) {
+                editoriales.add(mapear(rs)); // Transformo cada fila en un objeto con mapear y lo agrego a la BD
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar todas las editoriales", e);
+        }
+        return editoriales; // Devuelvo la lista con los géneros agregados (Si no había registros va a estar vacía)
     }
 
     @Override

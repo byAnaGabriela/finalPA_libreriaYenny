@@ -63,7 +63,26 @@ public class IdiomaRepositoryImpl extends RepositoryBase<Idioma> implements Idio
 
     @Override
     public Idioma buscarPorId(int id) {
-        return null;
+        String sql = "SELECT * FROM idioma WHERE id_idioma = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            // Asigno el id que recibo como parámetro, para reemplazar el (?)
+            ps.setInt(1, id);
+
+            // Ejecuto la consulta y guardo los resultados obtenidos
+            try(ResultSet rs = ps.executeQuery()) {
+                // Verifico si la BD me devolvió algún registro
+                if (rs.next()) {
+                    // Convierto ese registro en un objeto Idioma usando el metodo mapear y lo devuelvo
+                    return mapear(rs);
+                }
+                // Si no encuentro ningún idioma con ese id, devuelvo null
+                return null;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar el idioma por id", e);
+        }
     }
 
     @Override
@@ -78,7 +97,10 @@ public class IdiomaRepositoryImpl extends RepositoryBase<Idioma> implements Idio
 
     @Override
     protected Idioma mapear(ResultSet rs) throws SQLException {
-        return null;
+        // Tomo la fila actual de los resultados de la BD y creo un nuevo objeto
+        return new Idioma(
+                rs.getInt("id_idioma"),
+                rs.getString("nombre"));
     }
 
 }

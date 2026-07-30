@@ -33,7 +33,17 @@ public class CategoriaRepositoryImpl extends RepositoryBase<Categoria> implement
 
     @Override
     public void actualizar(Categoria categoria) {
+        // Actualiza el nombre de una categoría específica usando el id
+        String sql = "UPDATE categoria SET nombre = ? WHERE id_categoria = ?";
 
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, categoria.getNombre()); // Asigno el primer ? (nombre)
+            ps.setInt(2, categoria.getId()); // Asigno el segundo ? (id)
+            ps.executeUpdate(); // Ejecuto la actualización después de reemplazar los parámetros
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo actualizar la categoría", e);
+        }
     }
 
     @Override

@@ -48,7 +48,16 @@ public class EditorialRepositoryImpl extends RepositoryBase<Editorial> implement
 
     @Override
     public void eliminar(Editorial editorial) {
+        // Consulta para borrar una editorial específico usando el id
+        String sql = "DELETE FROM editorial WHERE id_editorial = ?";
 
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, editorial.getId()); // Asigno el id al ? de la consulta
+            ps.executeUpdate(); // Se ejecuta la instrucción para eliminar la editorial
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo eliminar la editorial", e);
+        }
     }
 
     @Override

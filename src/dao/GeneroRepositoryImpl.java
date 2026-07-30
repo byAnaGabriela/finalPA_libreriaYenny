@@ -49,12 +49,12 @@ public class GeneroRepositoryImpl extends RepositoryBase<Genero> implements Gene
 
     @Override
     public void eliminar(Genero genero) {
-        // Consulta para borrar un idioma específico usando el id
+        // Consulta para borrar un género específico usando el id
         String sql = "DELETE FROM genero WHERE id_genero = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, genero.getId()); // Asigno el id al ? de la consulta
-            ps.executeUpdate(); // Se ejecuta la instrucción para eliminar el idioma
+            ps.executeUpdate(); // Se ejecuta la instrucción para eliminar el género
 
         } catch (SQLException e) {
             throw new RuntimeException("No se pudo eliminar el género", e);

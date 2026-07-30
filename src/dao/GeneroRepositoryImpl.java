@@ -18,9 +18,9 @@ public class GeneroRepositoryImpl extends RepositoryBase<Genero> implements Gene
         // Preparo la consulta y le pido que devuelva el id generado automáticamente
         try (PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, genero.getNombre()); // Asigno el parámetro recibido en el ?
-            ps.executeUpdate(); // Ejecuto la insercción en la BD
+            ps.executeUpdate(); // Ejecuto la inserción en la BD
 
-            // Tomo el id que se generó y para asignarlo en el objeto
+            // Tomo el id que se generó, para asignarlo en el objeto
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     genero.setId(generatedKeys.getInt(1));
@@ -49,11 +49,12 @@ public class GeneroRepositoryImpl extends RepositoryBase<Genero> implements Gene
 
     @Override
     public void eliminar(Genero genero) {
+        // Consulta para borrar un idioma específico usando el id
         String sql = "DELETE FROM genero WHERE id_genero = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, genero.getId());
-            ps.executeUpdate();
+            ps.setInt(1, genero.getId()); // Asigno el id al ? de la consulta
+            ps.executeUpdate(); // Se ejecuta la instrucción para eliminar el idioma
 
         } catch (SQLException e) {
             throw new RuntimeException("No se pudo eliminar el género", e);

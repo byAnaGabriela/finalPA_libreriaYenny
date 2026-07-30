@@ -4,6 +4,7 @@ import model.Idioma;
 import repository.IdiomaRepository;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class IdiomaRepositoryImpl extends RepositoryBase<Idioma> implements IdiomaRepository {
@@ -87,7 +88,23 @@ public class IdiomaRepositoryImpl extends RepositoryBase<Idioma> implements Idio
 
     @Override
     public List<Idioma> listarTodos() {
-        return null;
+        String sql = "SELECT * FROM idioma";
+        List<Idioma> idiomas = new ArrayList<>(); // Lista vacía para guardar los idiomas que traiga la BD
+
+        // Preparo y ejecuto la consulta
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            // Recorro fila por fila los resultados
+            while (rs.next()) {
+                // Convierto la fila actual en un objeto usando mapear y lo agrego a la lista
+                idiomas.add(mapear(rs));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar todos los idiomas", e);
+        }
+        return idiomas; // Devuelvo los idiomas que se guardaron en la lista (si no había ninguno, estará vacía)
     }
 
     @Override

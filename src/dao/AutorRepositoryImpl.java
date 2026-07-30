@@ -107,17 +107,60 @@ public class AutorRepositoryImpl extends RepositoryBase<Autor> implements AutorR
 
     @Override
     public Autor buscarPorId(int id) {
-        return null;
+        String sql = "SELECT * FROM autor WHERE id_autor = ?"; // Busco un autor específico con su id
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id); // Reemplazo el ? con el id recibido
+
+            try (ResultSet rs = ps.executeQuery()) {
+                // Si encuentro un registro con ese id, lo transformo en objeto con mapear y lo devuelvo
+                if(rs.next()) {
+                    return mapear(rs);
+                }
+                return null; // Si no encuentro nada con ese id, devuelvo null
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar el autor por id", e);
+        }
     }
 
     @Override
     public List<Autor> listarTodos() {
-        return null;
+        String sql = "SELECT * FROM autor";
+        List<Autor> autores = new ArrayList<>(); // Creo una lista vacía para guardar los autores que encuentre
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) { // Preparo y ejecuto la consulta
+
+            // Recorro cada fila que me da la BD mientras haya registros
+            while (rs.next()) {
+                autores.add(mapear(rs)); // Transformo cada fila en un objeto autor y lo agrego a la lista
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar todos los autores", e);
+        }
+        return autores;
     }
 
     @Override
     protected Autor mapear(ResultSet rs) throws SQLException {
-        return null;
+        int idUsuario = rs.getInt("fk_id_usuario"); // Obtengo el id del usuario vinculado desde la BD
+
+        // Inicializo el usuario vinculado como nulo por defecto
+        Usuario escritorVinculado = null;
+        // Si el valor que trajo la BD no es nulo, busco el usuario correspondiente usando su repositorio
+        if (!rs.wasNull()) {
+            escritorVinculado = new UsuarioRepositoryImpl().buscarPorId(idUsuario);
+        }
+
+        // Construyo y devuelvo el objeto con todos sus datos
+        return new Autor(
+                rs.getInt("id_autor"),
+                rs.getString("nombre"),
+                rs.getString("apellido"),
+                escritorVinculado); // Puede tener uno vinculado o ser null
     }
 
 }

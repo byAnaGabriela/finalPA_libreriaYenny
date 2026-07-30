@@ -4,6 +4,7 @@ import model.Categoria;
 import repository.CategoriaRepository;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CategoriaRepositoryImpl extends RepositoryBase<Categoria> implements CategoriaRepository {
@@ -81,7 +82,21 @@ public class CategoriaRepositoryImpl extends RepositoryBase<Categoria> implement
 
     @Override
     public List<Categoria> listarTodos() {
-        return null;
+        String sql = "SELECT * FROM categoria";
+        List<Categoria> categorias = new ArrayList<>(); // Creo la lista vacía donde se guardarán las categorías
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) { // Preparo y ejecuto la consulta
+
+            // Recorro cada fila que devuelve la BD mientras haya registros
+            while (rs.next()) {
+                categorias.add(mapear(rs)); // Transformo cada fila en un objeto con mapear y lo agrego a la BD
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar todas las categorías", e);
+        }
+        return categorias; // Devuelvo la lista con los géneros agregados (Si no había registros va a estar vacía)
     }
 
     @Override

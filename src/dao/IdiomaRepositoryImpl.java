@@ -53,8 +53,8 @@ public class IdiomaRepositoryImpl extends RepositoryBase<Idioma> implements Idio
         // Consulta para borrar un idioma específico usando el id
         String sql = "DELETE FROM idioma WHERE id_idioma = ?";
 
-        try(PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, idioma.getId());
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idioma.getId()); // Asigno el id al ? de la consulta
             ps.executeUpdate(); // Se ejecuta la instrucción para eliminar el idioma
 
         } catch (SQLException e) {

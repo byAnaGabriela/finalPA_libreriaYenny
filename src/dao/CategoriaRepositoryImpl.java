@@ -101,7 +101,21 @@ public class CategoriaRepositoryImpl extends RepositoryBase<Categoria> implement
 
     @Override
     public boolean existeNombre(String nombre) {
-        return false;
+        // Si el nombre existe la BD me devuelve un 1, es más eficiente a que me traiga los datos de la tabla
+        String sql = "SELECT 1 FROM categoria WHERE nombre = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, nombre); // Reemplazo el ? con el nombre que recibo y quiero validar
+
+            // Ejecuto la consulta y reviso si obtuve algún resultado
+            try (ResultSet rs = ps.executeQuery()) {
+                // Si hay un registro con ese nombre, devuelve true, de lo contrario devuelve false
+                return rs.next();
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo validar la existencia de la categoria", e);
+        }
     }
 
     @Override

@@ -33,7 +33,17 @@ public class EditorialRepositoryImpl extends RepositoryBase<Editorial> implement
 
     @Override
     public void actualizar(Editorial editorial) {
+        // Actualiza el nombre de una editorial específica usando el id
+        String sql = "UPDATE editorial SET nombre = ? WHERE id_editorial = ?";
 
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, editorial.getNombre()); // Asigno el primer ? (nombre)
+            ps.setInt(2, editorial.getId()); // Asigno el segundo ? (id)
+            ps.executeUpdate(); // Ejecuto la actualización después de reemplazar los parámetros
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo actualizar la editorial", e);
+        }
     }
 
     @Override

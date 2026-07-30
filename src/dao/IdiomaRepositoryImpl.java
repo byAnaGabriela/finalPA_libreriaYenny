@@ -41,7 +41,7 @@ public class IdiomaRepositoryImpl extends RepositoryBase<Idioma> implements Idio
         try(PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, idioma.getNombre());
             ps.setInt(2, idioma.getId());
-            ps.executeUpdate(); // Ejecuto despues de reemplazar los parámetros
+            ps.executeUpdate(); // Ejecuto después de reemplazar los parámetros
 
         } catch (SQLException e) {
             throw new RuntimeException("No se pudo actualizar el idioma", e);

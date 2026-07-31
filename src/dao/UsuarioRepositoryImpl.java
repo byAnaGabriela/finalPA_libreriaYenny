@@ -133,17 +133,55 @@ public class UsuarioRepositoryImpl extends RepositoryBase<Usuario> implements Us
 
     @Override
     public Usuario buscarPorId(int id) {
-        return null;
+        String sql = "SELECT * FROM usuario WHERE id_usuario = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapear(rs);
+                }
+                return  null;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar el usuario por id", e);
+        }
     }
 
     @Override
     public List<Usuario> listarTodos() {
-        return  null;
+        String  sql = "SELECT * FROM usuario";
+        List<Usuario> usuarios = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                usuarios.add(mapear(rs));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar todos los usuarios", e);
+        }
+        return usuarios;
     }
 
     @Override
     protected Usuario mapear(ResultSet rs) throws SQLException {
-        return null;
+        return new Usuario(
+                rs.getInt("id_usuario"),
+                Rol.valueOf(rs.getString("rol")),
+                rs.getString("nombre"),
+                rs.getString("apellido"),
+                rs.getString("dni"),
+                rs.getString("celular"),
+                rs.getString("mail"),
+                rs.getString("nombre_usuario"),
+                rs.getString("contrasena"),
+                rs.getTimestamp("fecha_registro").toLocalDateTime(),
+                EstadoUsuario.valueOf(rs.getString("estado_usuario")));
     }
 
 }

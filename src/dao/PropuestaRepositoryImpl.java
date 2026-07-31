@@ -126,17 +126,59 @@ public class PropuestaRepositoryImpl extends RepositoryBase<Propuesta>  implemen
 
     @Override
     public Propuesta buscarPorId(int id) {
-        return null;
+        String sql = "SELECT * FROM propuesta WHERE id_propuesta = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapear(rs);
+                }
+                return  null;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar la propuesta por id", e);
+        }
     }
 
     @Override
     public List<Propuesta> listarTodos() {
-        return null;
+        String sql = "SELECT * FROM propuesta";
+        List<Propuesta> propuestas = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                propuestas.add(mapear(rs));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar todas las propuestas", e);
+        }
+        return propuestas;
     }
 
     @Override
     protected Propuesta mapear(ResultSet rs) throws SQLException {
-        return null;
+        Usuario escritor = new UsuarioRepositoryImpl().buscarPorId(rs.getInt("fk_id_escritor"));
+
+        int idEditor = rs.getInt("fk_id_editor");
+        Usuario editor = null;
+        if (!rs.wasNull()) {
+            editor = new UsuarioRepositoryImpl().buscarPorId(idEditor);
+        }
+
+        return new Propuesta(
+                rs.getInt("id_propuesta"),
+                rs.getString("titulo"),
+                rs.getString("descripcion"),
+                rs.getTimestamp("fecha_creacion").toLocalDateTime(),
+                escritor,
+                editor, // Puede ser null
+                EstadoPropuesta.valueOf(rs.getString("estado_propuesta")));
     }
 
 }

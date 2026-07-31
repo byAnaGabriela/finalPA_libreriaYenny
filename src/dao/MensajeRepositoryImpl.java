@@ -89,17 +89,59 @@ public class MensajeRepositoryImpl extends RepositoryBase<Mensaje> implements Me
 
     @Override
     public Mensaje buscarPorId(int id) {
-        return null;
+        String sql = "SELECT * FROM mensaje WHERE id_mensaje = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapear(rs);
+                }
+                return  null;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar el mensaje por id", e);
+        }
     }
 
     @Override
     public List<Mensaje> listarTodos() {
-        return null;
+        String sql = "SELECT * FROM mensaje";
+        List<Mensaje> mensajes = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                mensajes.add(mapear(rs));
+            }
+
+        }  catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar todos los mensajes", e);
+        }
+        return mensajes;
     }
 
     @Override
     protected Mensaje mapear(ResultSet rs) throws SQLException {
-        return null;
+        Propuesta propuesta = new PropuestaRepositoryImpl().buscarPorId(rs.getInt("fk_id_propuesta"));
+        Usuario usuario = new UsuarioRepositoryImpl().buscarPorId(rs.getInt("fk_id_usuario"));
+
+        int idMensajePadre = rs.getInt("fk_id_mensaje_padre");
+        Mensaje mendajePadre = null;
+        if (!rs.wasNull()) {
+            mendajePadre = buscarPorId(idMensajePadre);
+        }
+
+        return new Mensaje(
+                rs.getInt("id_mensaje"),
+                rs.getString("texto"),
+                rs.getTimestamp("fecha_envio").toLocalDateTime(),
+                usuario,
+                propuesta,
+                mendajePadre);
     }
 
 }

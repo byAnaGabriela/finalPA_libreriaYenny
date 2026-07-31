@@ -170,17 +170,79 @@ public class LibroRepositoryImpl extends RepositoryBase<Libro>  implements Libro
 
     @Override
     public Libro buscarPorId(int id) {
-        return null;
+        String sql = "SELECT * FROM libro WHERE id_libro = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id); // Reemplazo el ? con el id recibido
+
+            // Ejecuto la consulta
+            try (ResultSet rs = ps.executeQuery()) {
+                // Si encuentro un registro, lo transformo en objeto con mapear y lo devuelvo
+                if (rs.next()) {
+                    return mapear(rs);
+                }
+                // Si no encuentro nada con ese id, devuelvo null
+                return  null;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar el libro por id", e);
+        }
     }
 
     @Override
     public List<Libro> listarTodos() {
-        return null;
+        String sql = "SELECT * FROM libro";
+        List<Libro> libros = new ArrayList<>(); // Creo una lista vacía para ir guardando los libros que encuentre
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) { // Preparo y ejecuto la consulta
+
+            // Recorro cada fila que me devuelve la BD mientras haya registros
+            while (rs.next()) {
+                libros.add(mapear(rs)); // Transformo cada fila en un objeto y lo agrego a la lista
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar todos los libros", e);
+        }
+        return libros; // Devuelvo la lista con todos los libros encontrados
     }
 
     @Override
     protected Libro mapear(ResultSet rs) throws SQLException {
-        return null;
+        // Busco y asigno cada una de las entidades relacionadas usando los repositorios
+        Autor autor = new AutorRepositoryImpl().buscarPorId(rs.getInt("fk_id_autor"));
+        Editorial editorial = new EditorialRepositoryImpl().buscarPorId(rs.getInt("fk_id_editorial"));
+        Categoria categoria = new CategoriaRepositoryImpl().buscarPorId(rs.getInt("fk_id_categoria"));
+        Genero genero = new GeneroRepositoryImpl().buscarPorId(rs.getInt("fk_id_genero"));
+        Idioma idioma = new IdiomaRepositoryImpl().buscarPorId(rs.getInt("fk_id_idioma"));
+
+        // Obtengo el id de la propuesta de origen desde la BD
+        int idPropuesta = rs.getInt("fk_id_propuesta_origen");
+        // Inicializo la propuesta como null por defecto
+        Propuesta propuestaOrigen = null;
+        // Si el valor que trae la BD no es null, busco la propuesta correspondiente usando el repositorio
+        if (!rs.wasNull()) {
+            propuestaOrigen = new PropuestaRepositoryImpl().buscarPorId(idPropuesta);
+        }
+
+        // Construyo y devuelvo el nuevo objeto con todos los datos y relaciones a otras tablas
+        return new Libro(
+                rs.getInt("id_libro"),
+                rs.getString("isbn"),
+                rs.getString("titulo"),
+                rs.getString("sinopsis"),
+                rs.getInt("cantidad_paginas"),
+                rs.getBigDecimal("precio"),
+                rs.getDate("fecha_publicacion").toLocalDate(),
+                rs.getInt("cantidad_disponible"),
+                autor,
+                editorial,
+                categoria,
+                genero,
+                idioma,
+                propuestaOrigen); // Puede ser null
     }
 
 }

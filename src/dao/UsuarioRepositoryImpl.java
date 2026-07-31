@@ -65,18 +65,70 @@ public class UsuarioRepositoryImpl extends RepositoryBase<Usuario> implements Us
     }
 
     @Override
-    public void insertar(Usuario entidad) {
+    public void insertar(Usuario usuario) {
+        String sql = "INSERT INTO usuario (rol, nombre, apellido, dni, celular, mail, nombre_usuario, contrasena, fecha_registro, estado_usuario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, usuario.getRol().name());
+            ps.setString(2, usuario.getNombre());
+            ps.setString(3, usuario.getApellido());
+            ps.setString(4, usuario.getDni());
+            ps.setString(5, usuario.getCelular());
+            ps.setString(6, usuario.getMail());
+            ps.setString(7, usuario.getNombreUsuario());
+            ps.setString(8, usuario.getContrasena());
+            ps.setTimestamp(9, Timestamp.valueOf(usuario.getFechaRegistro()));
+            ps.setString(10, usuario.getEstado().name());
+
+            ps.executeUpdate();
+
+            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    usuario.setId(generatedKeys.getInt(1));
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo insertar el usuario", e);
+        }
     }
 
     @Override
-    public void actualizar(Usuario entidad) {
+    public void actualizar(Usuario usuario) {
+        String sql = "UPDATE usuario SET rol = ?, nombre = ?, apellido = ?, dni = ?, celular = ?, mail = ?, nombre_usuario = ?, contrasena = ?, estado_usuario = ? WHERE id_usuario = ?";
 
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, usuario.getRol().name());
+            ps.setString(2, usuario.getNombre());
+            ps.setString(3, usuario.getApellido());
+            ps.setString(4, usuario.getDni());
+            ps.setString(5, usuario.getCelular());
+            ps.setString(6, usuario.getMail());
+            ps.setString(7, usuario.getNombreUsuario());
+            ps.setString(8, usuario.getContrasena());
+            ps.setString(9, usuario.getEstado().name());
+            ps.setInt(10, usuario.getId());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo actualizar el usuario", e);
+        }
     }
 
     @Override
-    public void eliminar(Usuario entidad) {
+    public void eliminar(Usuario usuario) {
+        // En este caso en vez de eliminar literalmente al usuario de la bd, solo le cambio su estado a "eliminado"
+        // Así queda registro en la BD de todos los usuarios del sistema, estén activos o no
+        String sql = "UPDATE usuario SET estado_usuario = ? WHERE id_usuario = ?";
 
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, EstadoUsuario.ELIMINADO.name());
+            ps.setInt(2, usuario.getId());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo eliminar el usuario", e);
+        }
     }
 
     @Override

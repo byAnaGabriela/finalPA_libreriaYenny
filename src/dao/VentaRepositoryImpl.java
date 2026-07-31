@@ -3,11 +3,15 @@ package dao;
 import dto.EscritorRendimientoDTO;
 import dto.LibroVentaDTO;
 import model.DetalleVenta;
+import model.Usuario;
 import model.Venta;
+import model.enums.MetodoPago;
+import repository.DetalleVentaRepository;
 import repository.VentaRepository;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class VentaRepositoryImpl extends RepositoryBase<Venta> implements VentaRepository {
@@ -115,17 +119,55 @@ public class VentaRepositoryImpl extends RepositoryBase<Venta> implements VentaR
 
     @Override
     public Venta buscarPorId(int id) {
-        return null;
+        String sql = "SELECT * FROM venta WHERE id_venta = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if(rs.next()) {
+                    return mapear(rs);
+                }
+                return null;
+            }
+        }  catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar la venta por id", e);
+        }
     }
 
     @Override
     public List<Venta> listarTodos() {
-        return null;
+        String sql = "SELECT * FROM venta";
+        List<Venta> ventas = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                ventas.add(mapear(rs));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo listar todas las ventas", e);
+        }
+        return ventas;
     }
 
     @Override
     protected Venta mapear(ResultSet rs) throws SQLException {
-        return null;
+        Usuario vendedor = new UsuarioRepositoryImpl().buscarPorId(rs.getInt("fk_id_vendedor"));
+        int idVenta = rs.getInt("id_venta");
+        List<DetalleVenta> detalleVentas = new DetalleVentaRepository().listarPorVenta(idVenta);
+
+        return new Venta(
+                idVenta,
+                rs.getTimestamp("fecha_venta").toLocalDateTime(),
+                rs.getBigDecimal("precio_total"),
+                rs.getBigDecimal("descuento"),
+                MetodoPago.valueOf(rs.getString("metodo_pago")),
+                vendedor,
+                detalles
+        );
     }
 
 }

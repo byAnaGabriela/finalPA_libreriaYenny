@@ -87,12 +87,30 @@ public class VentaRepositoryImpl extends RepositoryBase<Venta> implements VentaR
 
     @Override
     public void actualizar(Venta venta) {
+        // La venta como tal no debería modificarse, pero puede que haya equivocación con el metodo de pago asi que eso es lo que se puede actualizar
+        String sql = "UPDATE venta SET metodo_pago = ? WHERE id_venta = ?";
 
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, venta.getMetodoPago().name());
+            ps.setInt(2, venta.getId());
+            ps.executeUpdate();
+
+        }  catch (SQLException e) {
+            throw new RuntimeException("No se pudo actualizar el método de pago de la venta", e);
+        }
     }
 
     @Override
     public void eliminar(Venta venta) {
+        String sql = "DELETE FROM venta WHERE id_venta = ?";
 
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, venta.getId());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo eliminar la venta", e);
+        }
     }
 
     @Override

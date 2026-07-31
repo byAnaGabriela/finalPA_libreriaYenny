@@ -87,17 +87,51 @@ public class BorradorRepositoryImpl extends RepositoryBase<Borrador> implements 
 
     @Override
     public Borrador buscarPorId(int id) {
-        return null;
+        String sql = "SELECT * FROM borrador WHERE id_borrador = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapear(rs);
+                }
+                return null;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar el borrador por id", e);
+        }
     }
 
     @Override
     public List<Borrador> listarTodos() {
-        return null;
+        String sql = "SELECT * FROM borrador";
+        List<Borrador> borradores = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                borradores.add(mapear(rs));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar todos los borradores", e);
+        }
+        return borradores;
     }
 
     @Override
     protected Borrador mapear(ResultSet rs) throws SQLException {
-        return null;
+        Propuesta propuesta = new PropuestaRepositoryImpl().buscarPorId(rs.getInt("fk_id_propuesta"));
+
+        return new Borrador(
+                rs.getInt("id_borrador"),
+                rs.getInt("version"),
+                rs.getString("ruta_archivo"),
+                rs.getTimestamp("fecha_subida").toLocalDateTime(),
+                propuesta);
     }
 
 }

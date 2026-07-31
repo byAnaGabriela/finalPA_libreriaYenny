@@ -34,17 +34,55 @@ public class BorradorRepositoryImpl extends RepositoryBase<Borrador> implements 
 
     @Override
     public void insertar(Borrador borrador) {
+        String sql = "INSERT INTO borrador (version, ruta_archivo, fecha_subida, fk_id_propuesta) VALUES (?, ?, ?, ?)";
 
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setInt(1, borrador.getVersion());
+            ps.setString(2, borrador.getRutaArchivo());
+            ps.setTimestamp(3, Timestamp.valueOf(borrador.getFechaSubida()));
+            ps.setInt(4, borrador.getPropuesta().getId());
+
+            ps.executeUpdate();
+
+            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    borrador.setId(generatedKeys.getInt(1));
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo insertar el borrador", e);
+        }
     }
 
     @Override
     public void actualizar(Borrador borrador) {
+        String sql = "UPDATE borrador SET version = ?, ruta_archivo = ?, fk_id_propuesta = ? WHERE id_borrador = ?";
 
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setInt(1, borrador.getVersion());
+            ps.setString(2, borrador.getRutaArchivo());
+            ps.setInt(3, borrador.getPropuesta().getId());
+            ps.setInt(4, borrador.getId());
+
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo actualizar el borrador", e);
+        }
     }
 
     @Override
     public void eliminar(Borrador borrador) {
+        String sql = "DELETE FROM borrador WHERE id_borrador = ?";
 
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, borrador.getId());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo eliminar el borrador", e);
+        }
     }
 
     @Override

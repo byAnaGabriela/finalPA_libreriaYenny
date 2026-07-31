@@ -59,17 +59,69 @@ public class PropuestaRepositoryImpl extends RepositoryBase<Propuesta>  implemen
 
     @Override
     public void insertar(Propuesta propuesta) {
-        
+        String sql = "INSERT INTO propuesta (titulo, descripcion, fecha_creacion, estado_propuesta, fk_id_escritor, fk_id_editor) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, propuesta.getTitulo());
+            ps.setString(2, propuesta.getDescripcion());
+            ps.setTimestamp(3, Timestamp.valueOf(propuesta.getFechaCreacion()));
+            ps.setString(4, propuesta.getEstado().name());
+
+            // Asigno los id de las relaciones con otras tablas
+            ps.setInt(5, propuesta.getEscritor().getId());
+            // Como el editor puede ser nulo pregunto primero si existe para asignarlo y si no lo dejo como null
+            if (propuesta.getEditor() != null) {
+                ps.setInt(6, propuesta.getEditor().getId());
+            } else {
+                ps.setNull(6, Types.INTEGER);
+            }
+            ps.executeUpdate();
+
+            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    propuesta.setId(generatedKeys.getInt(1));
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo insertar la propuesta", e);
+        }
     }
 
     @Override
     public void actualizar(Propuesta propuesta) {
+        String sql = "UPDATE propuesta SET titulo = ?, descripcion = ?, estado_propuesta = ?, fk_id_editor = ? WHERE id_propuesta = ?";
 
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, propuesta.getTitulo());
+            ps.setString(2, propuesta.getDescripcion());
+            ps.setString(3, propuesta.getEstado().name());
+
+            if (propuesta.getEditor() != null) {
+                ps.setInt(4, propuesta.getEditor().getId());
+            } else {
+                ps.setNull(4, Types.INTEGER);
+            }
+
+            ps.setInt(5, propuesta.getId());
+            ps.executeUpdate();
+
+        }  catch (SQLException e) {
+            throw new RuntimeException("No se pudo actualizar la propuesta", e);
+        }
     }
 
     @Override
     public void eliminar(Propuesta propuesta) {
+        String sql = "DELETE FROM propuesta WHERE id_propuesta = ?";
 
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, propuesta.getId());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo eliminar la propuesta", e);
+        }
     }
 
     @Override

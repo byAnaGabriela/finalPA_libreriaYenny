@@ -7,7 +7,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LibroRepositoryImpl extends RepositoryBase<Libro>  implements LibroRepository {
+public class LibroRepositoryImpl extends RepositoryBase<Libro> implements LibroRepository {
 
     //Conexión declarada en la clase padre(RepositoryBase)
 

@@ -9,7 +9,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PropuestaRepositoryImpl extends RepositoryBase<Propuesta>  implements PropuestaRepository {
+public class PropuestaRepositoryImpl extends RepositoryBase<Propuesta> implements PropuestaRepository {
 
     //Conexión declarada en la clase padre(RepositoryBase)
 

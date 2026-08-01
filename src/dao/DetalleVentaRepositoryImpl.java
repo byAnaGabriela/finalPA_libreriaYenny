@@ -34,7 +34,7 @@ public class DetalleVentaRepositoryImpl extends RepositoryBase<DetalleVenta> imp
     public void insertar(DetalleVenta detalleVenta) {
         String sql = "INSERT INTO venta_libro (fk_id_venta, fk_id_libro, cantidad_vendida, precio_unitario) VALUES (?, ?, ?, ?)"; // Tabla intermedia entre venta y libro en la BD
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, detalleVenta.getVenta().getId());
             ps.setInt(2, detalleVenta.getLibro().getId());
             ps.setInt(3, detalleVenta.getCantidadVendida());

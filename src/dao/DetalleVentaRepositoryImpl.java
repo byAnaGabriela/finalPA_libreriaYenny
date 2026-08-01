@@ -2,6 +2,7 @@ package dao;
 
 import model.DetalleVenta;
 import model.Libro;
+import model.Venta;
 import repository.DetalleVentaRepository;
 
 import java.sql.*;
@@ -62,7 +63,7 @@ public class DetalleVentaRepositoryImpl extends RepositoryBase<DetalleVenta> imp
             ps.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException("No se pudo actualizar el detalle de la venta", e)
+            throw new RuntimeException("No se pudo actualizar el detalle de la venta", e);
         }
     }
 
@@ -81,17 +82,51 @@ public class DetalleVentaRepositoryImpl extends RepositoryBase<DetalleVenta> imp
 
     @Override
     public DetalleVenta buscarPorId(int id) {
-        return null;
+        String sql = "SELECT * FROM venta_libro WHERE id_venta_libro = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapear(rs);
+                }
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar el detalle de la venta por id", e);
+        }
     }
 
     @Override
     public List<DetalleVenta> listarTodos() {
-        return null;
+        String sql = "SELECT * FROM venta_libro";
+        List<DetalleVenta> detalles = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                detalles.add(mapear(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo listar todos los detalles", e);
+        }
+        return detalles;
     }
 
     @Override
     protected DetalleVenta mapear(ResultSet rs) throws SQLException {
-        return null;
+        Venta venta = new VentaRepositoryImpl().buscarPorId(rs.getInt("fk_id_venta"));
+        Libro libro = new LibroRepositoryImpl().buscarPorId(rs.getInt("fk_id_libro"));
+
+        return new DetalleVenta(
+                rs.getInt("id_venta_libro"),
+                venta,
+                libro,
+                rs.getInt("cantidad_vendida"),
+                rs.getBigDecimal("precio_unitario")
+        );
     }
 
 }

@@ -18,12 +18,41 @@ public class VentaRepositoryImpl extends RepositoryBase<Venta> implements VentaR
 
     @Override
     public List<Venta> listarPorVendedor(int idVendedor) {
-        return null;
+        String sql = "SELECT * FROM venta WHERE fk_id_vendedor = ?";
+        List<Venta> ventas = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idVendedor);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ventas.add(mapear(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo listar las ventas por vendedor", e);
+        }
+        return ventas;
     }
 
     @Override
     public List<Venta> listarPorFecha(LocalDateTime desde, LocalDateTime hasta) {
-        return null;
+        String sql = "SELECT * FROM venta WHERE fecha_venta BETWEEN ? AND ?";
+        List<Venta> ventas = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setTimestamp(1, Timestamp.valueOf(desde));
+            ps.setTimestamp(2, Timestamp.valueOf(hasta));
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ventas.add(mapear(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo listar las ventas por fecha", e);
+        }
+        return ventas;
     }
 
     @Override
@@ -67,6 +96,7 @@ public class VentaRepositoryImpl extends RepositoryBase<Venta> implements VentaR
             throw new RuntimeException("No se pudo insertar la venta", e);
         }
 
+        // Inserto cada detalle usando su clase, en vez de hacer aquí el sql de la tabla intermedia (venta_libro)
         DetalleVentaRepositoryImpl detalleVentaRepository = new DetalleVentaRepositoryImpl();
 
             // Uso for para recorrer cada detalle que contiene la venta (es un detalle por cada libro distinto dentro de la misma venta)

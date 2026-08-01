@@ -3,6 +3,7 @@ package dao;
 import dto.EscritorRendimientoDTO;
 import dto.LibroVentaDTO;
 import model.DetalleVenta;
+import model.Libro;
 import model.Usuario;
 import model.Venta;
 import model.enums.MetodoPago;
@@ -37,7 +38,7 @@ public class VentaRepositoryImpl extends RepositoryBase<Venta> implements VentaR
 
     @Override
     public List<Venta> listarPorFecha(LocalDateTime desde, LocalDateTime hasta) {
-        String sql = "SELECT * FROM venta WHERE fecha_venta BETWEEN ? AND ?";
+        String sql = "SELECT * FROM venta WHERE fecha_venta BETWEEN ? AND ?"; // Busca en un rango específico
         List<Venta> ventas = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -57,12 +58,67 @@ public class VentaRepositoryImpl extends RepositoryBase<Venta> implements VentaR
 
     @Override
     public List<LibroVentaDTO> obtenerLibrosMasVendidos(int anio, int mes) {
-        return null;
+        // YEAR y MONTH son funciones de MySQL que extraen el año y el mes de una columna de fecha
+        String sql = "SELECT l.id_libro, SUM(vl.cantidad_vendida) AS cantidad, " +
+                     "SUM(vl.cantidad_vendida * vl.precio_unitario) AS ingreso_total " +
+                     "FROM venta_libro vl " +
+                     "JOIN venta v ON vl.fk_id_venta = v.id_venta " +
+                     "JOIN libro l ON vl.fk_id_libro = l.id_libro " +
+                     "WHERE YEAR(v.fecha_venta) = ? AND MONTH(v.fecha_venta) = ? " +
+                     "GROUP BY l.id_libro " +
+                     "ORDER BY cantidad DESC";
+
+        List<LibroVentaDTO> resultado = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, anio);
+            ps.setInt(2, mes);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                LibroRepositoryImpl libroRepository = new LibroRepositoryImpl();
+                // Recorro cada registro obtenido de la bd
+                while (rs.next()) {
+                    Libro libro = libroRepository.buscarPorId(rs.getInt("id_libro"));
+                    resultado.add(new LibroVentaDTO(
+                            libro,
+                            rs.getInt("cantidad"),
+                            rs.getBigDecimal("ingreso_total")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar los libros más vendidos por fecha", e);
+        }
+        return resultado;
     }
 
     @Override
     public List<LibroVentaDTO> obtenerLibrosMasVendidos() {
-        return null;
+        // Es la misma consulta que la de arriba pero no voy a filtrar por fecha específica, mostrará un ranking del más vendido al menos vendido
+        String sql = "SELECT l.id_libro, SUM(vl.cantidad_vendida) AS cantidad, " +
+                     "SUM(vl.cantidad_vendida * vl.precio_unitario) AS ingreso_total " +
+                     "FROM venta_libro vl " +
+                     "JOIN libro l ON vl.fk_id_libro = l.id_libro " +
+                     "GROUP BY l.id_libro " +
+                     "ORDER BY cantidad DESC";
+
+        List<LibroVentaDTO> resultado = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            LibroRepositoryImpl libroRepository = new LibroRepositoryImpl();
+            while (rs.next()) {
+                Libro libro = libroRepository.buscarPorId(rs.getInt("id_libro"));
+                resultado.add(new LibroVentaDTO(
+                        libro,
+                        rs.getInt("cantidad"),
+                        rs.getBigDecimal("ingreso_total")
+                ));
+            }
+        }  catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar los libros más vendidos", e);
+        }
+        return resultado;
     }
 
     @Override

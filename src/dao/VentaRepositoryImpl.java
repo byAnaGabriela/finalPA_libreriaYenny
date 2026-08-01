@@ -67,26 +67,13 @@ public class VentaRepositoryImpl extends RepositoryBase<Venta> implements VentaR
             throw new RuntimeException("No se pudo insertar la venta", e);
         }
 
-        // Inserto los detalles de la venta en la tabla intermedia (venta_libro)
-        // Guardo cada libro que se compró dentro de la venta
-        String sqlDetalle = "INSERT INTO venta_libro (fk_id_venta, fk_id_libro, cantidad_vendida, precio_unitario) VALUES (?, ?, ?, ?) ";
+        DetalleVentaRepositoryImpl detalleVentaRepository = new DetalleVentaRepositoryImpl();
 
-        try (PreparedStatement psDetalle = connection.prepareStatement(sqlDetalle)) {
             // Uso for para recorrer cada detalle que contiene la venta (es un detalle por cada libro distinto dentro de la misma venta)
             for (DetalleVenta detalle : venta.getDetalles()) {
-                psDetalle.setInt(1, venta.getId());
-                psDetalle.setInt(2, detalle.getLibro().getId());
-                psDetalle.setInt(3, detalle.getCantidadVendida());
-                psDetalle.setBigDecimal(4, detalle.getPrecioUnitario());
-
-                psDetalle.addBatch(); // En vez de hacer un insert por cada libro, el batch va a acumulando los inserts para luego enviarlos todos juntos
-
+                detalle.setVenta(venta);
+                detalleVentaRepository.insertar(detalle);
             }
-            psDetalle.executeBatch(); // Cuando el bucle termina de recorrer los libros, se envía una sola vez lo acumulado (es más eficiente que enviar uno por uno)
-
-        } catch (SQLException e) {
-            throw new RuntimeException("No se pudo insertar los detalles de la venta", e);
-        }
     }
 
     @Override

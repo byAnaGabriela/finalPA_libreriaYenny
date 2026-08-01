@@ -13,7 +13,7 @@ public class DetalleVentaRepositoryImpl extends RepositoryBase<DetalleVenta> imp
 
     @Override
     public List<DetalleVenta> listarPorVenta(int idVenta) {
-        String sql = "SELECT * FROM vente_libro WHERE fk_id_venta = ?";
+        String sql = "SELECT * FROM venta_libro WHERE fk_id_venta = ?";
         List<DetalleVenta> detalles = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -32,7 +32,7 @@ public class DetalleVentaRepositoryImpl extends RepositoryBase<DetalleVenta> imp
 
     @Override
     public void insertar(DetalleVenta detalleVenta) {
-        String sql = "INSERT INTO vente_libro (fk_id_venta, fk_id_libro, cantidad_vendida, precio_unitario) VALUES (?, ?, ?, ?)"; // Tabla intermedia entre venta y libro en la BD
+        String sql = "INSERT INTO venta_libro (fk_id_venta, fk_id_libro, cantidad_vendida, precio_unitario) VALUES (?, ?, ?, ?)"; // Tabla intermedia entre venta y libro en la BD
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, detalleVenta.getVenta().getId());

@@ -117,12 +117,13 @@ public class DetalleVentaRepositoryImpl extends RepositoryBase<DetalleVenta> imp
 
     @Override
     protected DetalleVenta mapear(ResultSet rs) throws SQLException {
-        Venta venta = new VentaRepositoryImpl().buscarPorId(rs.getInt("fk_id_venta"));
+        // No busco el objeto Venta pq se arma un bucle infinito entre venta y detalles
+        // Si colo Venta abajo, en vez de null se llamarían a sí mismos a cada rato sin terminar
         Libro libro = new LibroRepositoryImpl().buscarPorId(rs.getInt("fk_id_libro"));
 
         return new DetalleVenta(
                 rs.getInt("id_venta_libro"),
-                venta,
+                null,
                 libro,
                 rs.getInt("cantidad_vendida"),
                 rs.getBigDecimal("precio_unitario")

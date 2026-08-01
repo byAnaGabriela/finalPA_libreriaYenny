@@ -2,14 +2,12 @@ package dao;
 
 import dto.EscritorRendimientoDTO;
 import dto.LibroVentaDTO;
-import model.DetalleVenta;
-import model.Libro;
-import model.Usuario;
-import model.Venta;
+import model.*;
 import model.enums.MetodoPago;
 import repository.DetalleVentaRepository;
 import repository.VentaRepository;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -60,7 +58,7 @@ public class VentaRepositoryImpl extends RepositoryBase<Venta> implements VentaR
     public List<LibroVentaDTO> obtenerLibrosMasVendidos(int anio, int mes) {
         // YEAR y MONTH son funciones de MySQL que extraen el año y el mes de una columna de fecha
         String sql = "SELECT l.id_libro, SUM(vl.cantidad_vendida) AS cantidad, " +
-                     "SUM(vl.cantidad_vendida * vl.precio_unitario) AS ingreso_total " +
+                     "SUM(vl.cantidad_vendida * vl.precio_unitario) AS ganancia " +
                      "FROM venta_libro vl " +
                      "JOIN venta v ON vl.fk_id_venta = v.id_venta " +
                      "JOIN libro l ON vl.fk_id_libro = l.id_libro " +
@@ -82,7 +80,7 @@ public class VentaRepositoryImpl extends RepositoryBase<Venta> implements VentaR
                     resultado.add(new LibroVentaDTO(
                             libro,
                             rs.getInt("cantidad"),
-                            rs.getBigDecimal("ingreso_total")
+                            rs.getBigDecimal("ganancia")
                     ));
                 }
             }
@@ -96,7 +94,7 @@ public class VentaRepositoryImpl extends RepositoryBase<Venta> implements VentaR
     public List<LibroVentaDTO> obtenerLibrosMasVendidos() {
         // Es la misma consulta que la de arriba pero no voy a filtrar por fecha específica, mostrará un ranking del más vendido al menos vendido
         String sql = "SELECT l.id_libro, SUM(vl.cantidad_vendida) AS cantidad, " +
-                     "SUM(vl.cantidad_vendida * vl.precio_unitario) AS ingreso_total " +
+                     "SUM(vl.cantidad_vendida * vl.precio_unitario) AS ganancia " +
                      "FROM venta_libro vl " +
                      "JOIN libro l ON vl.fk_id_libro = l.id_libro " +
                      "GROUP BY l.id_libro " +
@@ -112,7 +110,7 @@ public class VentaRepositoryImpl extends RepositoryBase<Venta> implements VentaR
                 resultado.add(new LibroVentaDTO(
                         libro,
                         rs.getInt("cantidad"),
-                        rs.getBigDecimal("ingreso_total")
+                        rs.getBigDecimal("ganancia")
                 ));
             }
         }  catch (SQLException e) {
@@ -122,13 +120,120 @@ public class VentaRepositoryImpl extends RepositoryBase<Venta> implements VentaR
     }
 
     @Override
+    // Traigo el rendimiento de todos los autores registrados en el sistema, ordenados de mayor a menos según las ganancias totales
     public List<EscritorRendimientoDTO> obtenerRendimientoAutores() {
-        return null;
+        String sql = "SELECT a.id_autor, SUM(vl.cantidad_vendida) AS cantidad, " +
+                     "SUM(vl.cantidad_vendida * vl.precio_unitario) AS ganancia " +
+                     "FROM venta_libro vl " +
+                     "JOIN libro l ON vl.fk_id_libro = l.id_libro " +
+                     "JOIN autor a ON l.fk_id_autor = a.id_autor " +
+                     "GROUP BY a.id_autor " +
+                     "ORDER BY ganancia DESC";
+
+        List<EscritorRendimientoDTO> resultado = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+                 AutorRepositoryImpl autorRepository = new AutorRepositoryImpl();
+                 while (rs.next()) {
+                     int idAutor = rs.getInt("id_autor");
+                     Autor autor = autorRepository.buscarPorId(idAutor);
+                     // Construyo el objeto dto combinando los datos generales del autor y el detalle por cada uno de sus libros
+                     resultado.add(new EscritorRendimientoDTO(
+                        autor,
+                        rs.getInt("cantidad"),
+                        rs.getBigDecimal("ganancia"),
+                        obtenerDetallePorLibroDeAutor(idAutor)
+                     ));
+                 }
+        } catch (SQLException e) {
+                 throw new RuntimeException("No se pudo obtener el rendimiento de ventas de autores", e);
+        }
+        return resultado;
     }
 
+    // Traigo el rendimiento de un único autor buscándolo con el id
     @Override
     public List<EscritorRendimientoDTO> obtenerGananciasPorAutor(int idEscritor) {
-        return null;
+        Autor autor = new AutorRepositoryImpl().buscarPorUsuario(idEscritor);
+        List<EscritorRendimientoDTO> resultado = new ArrayList<>();
+
+        // Si no encuentro el autor asociado, devuelvo la lista vacía directamente
+        if (autor == null) {
+            return resultado;
+        }
+
+        // Libros que pertenecen únicamente a UN autor
+        String sql = "SELECT SUM(vl.cantidad_vendida) AS cantidad, " +
+                     "SUM(vl.cantidad_vendida * vl.precio_unitario) AS ganancia " +
+                     "FROM venta_libro vl " +
+                     "JOIN libro l ON vl.fk_id_libro = l.id_libro " +
+                     "WHERE l.fk_id_autor = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, autor.getId());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    // Si el autor no tienen ninguna venta todavía devuelve null, entonces le asigno un 0
+                    int cantidad = rs.getInt("cantidad");
+                    if (rs.wasNull()) {
+                        cantidad = 0;
+                    }
+
+                    // Si es null la reemplazo por 0
+                    BigDecimal ganancia = rs.getBigDecimal("ganancia");
+                    if (ganancia == null) {
+                        ganancia = BigDecimal.ZERO;
+                    }
+
+                    // Construyo la lista con la información obtenida
+                    resultado.add(new EscritorRendimientoDTO(
+                            autor,
+                            cantidad,
+                            ganancia,
+                            obtenerDetallePorLibroDeAutor(autor.getId())
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            throw  new RuntimeException("No se pudo obtener el ganancias del autor", e);
+        }
+        return resultado;
+    }
+
+
+    private List<LibroVentaDTO> obtenerDetallePorLibroDeAutor(int idAutor) {
+        // Consulta auxiliar para calcular cuantas unidades se vendieron de cada libro en particular y cuánto dinero generó cada uno, filtrado por el autor que recibo por parámetro
+        String sql = "SELECT l.id_libro, SUM(vl.cantidad_vendida) AS cantidad, " +
+                     "SUM(vl.cantidad_vendida * vl.precio_unitario) AS ganancia " +
+                     "FROM venta_libro vl " +
+                     "JOIN libro l ON vl.fk_id_libro = l.id_libro " +
+                     "WHERE l.fk_id_autor = ? " +
+                     "GROUP BY l.id_libro";
+        List<LibroVentaDTO> detalle = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idAutor);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                LibroRepositoryImpl libroRepository = new LibroRepositoryImpl();
+                // Recorro cada fila que representa un libro del autor
+                while (rs.next()) {
+                    // Busco el libro completo con el id
+                    Libro libro = libroRepository.buscarPorId(rs.getInt("id_libro"));
+                    // Creo el objeto con todos los detalles
+                    detalle.add(new LibroVentaDTO(
+                            libro,
+                            rs.getInt("cantidad"),
+                            rs.getBigDecimal("ganancia")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo obtener detalle por libro del autor", e);
+        }
+        return detalle;
     }
 
     @Override
@@ -230,7 +335,7 @@ public class VentaRepositoryImpl extends RepositoryBase<Venta> implements VentaR
     protected Venta mapear(ResultSet rs) throws SQLException {
         Usuario vendedor = new UsuarioRepositoryImpl().buscarPorId(rs.getInt("fk_id_vendedor"));
         int idVenta = rs.getInt("id_venta");
-        List<DetalleVenta> detalleVentas = new DetalleVentaRepository().listarPorVenta(idVenta);
+        List<DetalleVenta> detalleVentas = new DetalleVentaRepositoryImpl().listarPorVenta(idVenta);
 
         return new Venta(
                 idVenta,
@@ -239,7 +344,7 @@ public class VentaRepositoryImpl extends RepositoryBase<Venta> implements VentaR
                 rs.getBigDecimal("descuento"),
                 MetodoPago.valueOf(rs.getString("metodo_pago")),
                 vendedor,
-                detalles
+                detalleVentas
         );
     }
 

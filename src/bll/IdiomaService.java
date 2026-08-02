@@ -8,27 +8,34 @@ import java.util.List;
 
 public class IdiomaService implements CrudService<Idioma> {
 
+    // Instancio el repositorio que se encargará de interactuar con la BD
     private IdiomaRepository idiomaRepository = new IdiomaRepositoryImpl();
 
     @Override
     public void agregar(Idioma idioma) {
-        // Valido si existe o no el idioma antes de insertar
+        // Verifico si hay un idioma con el mismo nombre registrado antes de insertar
         // De igual manera en la BD a la fila nombre la puse como unique
         if (idiomaRepository.existeNombre(idioma.getNombre())) {
-            throw new RuntimeException("Ya existe este idioma");
+            // Si ya existe lanzo la excepción y no se inserta
+            throw new RuntimeException("Ya existe un idioma con el mismo nombre");
         }
-        idiomaRepository.insertar(idioma);
+        idiomaRepository.insertar(idioma); // Si no existe lo guardo en la BD
     }
 
     @Override
     public void editar(Idioma idioma) {
-        Idioma idiomaExistente = idiomaRepository.buscarPorId(idioma.getId()); // Busco el valor actual y lo guardo en la variable
-        boolean cambioDeNombre = !idiomaExistente.getNombre().equals(idioma.getNombre()); // Si los nombres son diferentes equals da false, usando el ! lo invierte y me da true, es decir, el nombre si se cambió
-        // Si los nombres son iguales da false
-        // Si el usuario cambió el nombre también tengo que evaluar que no sea igual a otro que ya exista en la BD
+        // Busco el valor actual y lo guardo en la variable
+        Idioma idiomaExistente = idiomaRepository.buscarPorId(idioma.getId());
+
+        // Si los nombres son diferentes equals da false, usando el ! lo invierte y me da true, es decir, el nombre si cambió / Si los nombres son iguales da false
+        // Con esto compruebo si el nombre que se quiere actualizar es distinto al que ya tenía
+        boolean cambioDeNombre = !idiomaExistente.getNombre().equals(idioma.getNombre());
+
+        // Si cambió el nombre, también tengo que evaluar que no sea igual a otro que ya exista en la BD
         if (cambioDeNombre && idiomaRepository.existeNombre(idioma.getNombre())) {
-            throw new RuntimeException("Ya existe este idioma");
+            throw new RuntimeException("Ya existe un idioma con el mismo nombre");
         }
+        // Si pasa las validaciones, se actualizan los datos en la BD
         idiomaRepository.actualizar(idioma);
     }
 

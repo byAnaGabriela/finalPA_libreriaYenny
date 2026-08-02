@@ -4,7 +4,6 @@ import dao.GeneroRepositoryImpl;
 import model.Genero;
 import repository.GeneroRepository;
 
-import java.util.Collections;
 import java.util.List;
 
 public class GeneroService implements CrudService<Genero> {
@@ -26,10 +25,10 @@ public class GeneroService implements CrudService<Genero> {
     @Override
     public void editar(Genero genero) {
         // Busco el valor actual y lo guardo en la variable
-        Genero idiomaExistente = generoRepository.buscarPorId(genero.getId());
+        Genero generoExistente = generoRepository.buscarPorId(genero.getId());
 
         // Con esto compruebo si el nombre que se quiere actualizar es distinto al que ya tenía
-        boolean cambioDeNombre = !idiomaExistente.getNombre().equals(genero.getNombre());
+        boolean cambioDeNombre = !generoExistente.getNombre().equals(genero.getNombre());
 
         // Si cambió el nombre, también tengo que evaluar que no sea igual a otro que ya exista en la BD
         if (cambioDeNombre && generoRepository.existeNombre(genero.getNombre())) {

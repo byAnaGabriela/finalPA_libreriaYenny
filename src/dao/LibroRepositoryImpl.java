@@ -1,6 +1,7 @@
 package dao;
 
 import model.*;
+import model.enums.AtributoLibro;
 import repository.LibroRepository;
 
 import java.sql.*;
@@ -182,7 +183,7 @@ public class LibroRepositoryImpl extends RepositoryBase<Libro> implements LibroR
                     return mapear(rs);
                 }
                 // Si no encuentro nada con ese id, devuelvo null
-                return  null;
+                return null;
             }
 
         } catch (SQLException e) {
@@ -243,6 +244,41 @@ public class LibroRepositoryImpl extends RepositoryBase<Libro> implements LibroR
                 genero,
                 idioma,
                 propuestaOrigen); // Puede ser null
+    }
+
+    private String mapearColumnaAtributo(AtributoLibro atributoLibro) {
+        switch (atributoLibro) {
+            case AUTOR:
+                return "fk_id_autor";
+            case CATEGORIA:
+                return "fk_id_categoria";
+            case EDITORIAL:
+                return "fk_id_editorial";
+            case GENERO:
+                return "fk_id_genero";
+            case IDIOMA:
+                return "fk_id_idioma";
+            case PROPUESTA:
+                return "fk_id_propuesta_origen";
+            default:
+                throw new RuntimeException("No se encontró el atributo");
+        }
+    }
+
+    @Override
+    public boolean existeLibroAsociado(AtributoLibro atributoLibro, int idAtributo) {
+        String columna = mapearColumnaAtributo(atributoLibro);
+        String sql = "SELECT 1 FROM libro WHERE " + columna + " = ? LIMIT 1";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idAtributo);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo validar la existencia del libro asociado", e);
+        }
     }
 
 }

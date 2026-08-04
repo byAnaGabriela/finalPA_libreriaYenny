@@ -8,6 +8,7 @@ import util.Hashing;
 import util.Sesion;
 import util.Validaciones;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class UsuarioService implements CrudService<Usuario> {
@@ -72,14 +73,22 @@ public class UsuarioService implements CrudService<Usuario> {
             throw new RuntimeException("La contraseña debe tener al menos 8 caracteres, con letras y números");
         }
 
-        // Luego de pasar todas las validaciones necesarias, hasheo la contraseña e inserto al usuario en la BD
+        /* Luego de pasar todas las validaciones necesarias:
+         - hasheo la contraseña
+         - setteo los valores por defecto(fecha y hora, estado)
+         - inserto al usuario en la BD */
         usuario.setContrasena(Hashing.hash(usuario.getContrasena()));
+        usuario.setFechaRegistro(LocalDateTime.now());
+        usuario.setEstado(EstadoUsuario.ACTIVO);
+
         usuarioRepository.insertar(usuario);
     }
 
-    // Este metodo lo usa unicamente el administrador
+    // Este metodo lo usa únicamente el administrador
     @Override
     public void editar(Usuario usuario) {
+        validarPermisoAdmin(); // Valido permisos de administrador
+
         Usuario usuarioExistente = usuarioRepository.buscarPorId(usuario.getId());
         if (usuarioExistente == null) {
             throw new RuntimeException("No se encontró al usuario");
@@ -105,7 +114,7 @@ public class UsuarioService implements CrudService<Usuario> {
         }
 
         // Los duplicados los chequeo si realmente cambiaron
-        boolean cambioDni = usuario.getDni().equals(usuarioExistente.getDni());
+        boolean cambioDni = !usuarioExistente.getDni().equals(usuario.getDni());
         if (cambioDni && usuarioRepository.existeDni(usuarioExistente.getDni())) {
             throw new RuntimeException("Ya existe un usuario con el dni ingresado");
         }
@@ -115,16 +124,25 @@ public class UsuarioService implements CrudService<Usuario> {
             throw new RuntimeException("Ya existe un usuario con el mail ingresado");
         }
 
-        boolean cambioNombreUsuario = usuario.getNombreUsuario().equals(usuarioExistente.getNombreUsuario());
+        boolean cambioNombreUsuario = !usuarioExistente.getNombreUsuario().equals(usuario.getNombreUsuario());
         if (cambioNombreUsuario && usuarioRepository.existeNombreUsuario(usuario.getNombreUsuario())) {
             throw new RuntimeException("Ya existe un usuario con el nombre de usuario ingresado");
         }
 
-        usuarioRepository.actualizar(usuario);
+        usuarioExistente.setNombre(usuario.getNombre());
+        usuarioExistente.setApellido(usuario.getApellido());
+        usuarioExistente.setDni(usuario.getDni());
+        usuarioExistente.setCelular(usuario.getCelular());
+        usuarioExistente.setMail(usuario.getMail());
+        usuarioExistente.setNombreUsuario(usuario.getNombreUsuario());
+
+        usuarioRepository.actualizar(usuarioExistente);
     }
 
+    // Usado únicamente por el administrador para eliminar cuentas de otros usuarios
     @Override
     public void eliminar(Usuario usuario) {
+        validarPermisoAdmin(); // Verifico que tenga los permisos de administrador
         usuarioRepository.eliminar(usuario);
     }
 
@@ -167,7 +185,7 @@ public class UsuarioService implements CrudService<Usuario> {
         return usuario;
     }
 
-    public void cerrarSesion(Usuario usuario) {
+    public void cerrarSesion() {
         // Cierro la sesión activa, limpiando los datos del usuario logueado
         Sesion.cerrar();
     }
@@ -263,17 +281,84 @@ public class UsuarioService implements CrudService<Usuario> {
         usuarioRepository.actualizar(usuario);
     }
 
+    public void eliminarCuentaPropia() {
+        // Obtengo al usuario que está logueado
+        Usuario usuarioActual = Sesion.getUsuarioActual();
+        // Verifico que realmente haya una sesión activa
+        if (usuarioActual == null) {
+            throw new RuntimeException("No hay una sesión iniciada");
+        }
+
+        usuarioRepository.eliminar(usuarioActual);
+
+        // Cierro la sesión automáticamente después de eliminar la cuenta
+        Sesion.cerrar();
+    }
+
     // ★゜・。。・゜゜・。。・゜☆ Gestión de los administradores ☆゜・。。・゜゜・。。・゜★
-    
-    public void crearUsuario(Usuario admin, Usuario nuevoUsuario) {}
 
-    public void asignarRol(Usuario admin, int idUsuario, Rol nuevoRol){}
+    private void validarPermisoAdmin() {
+        // Obtengo al usuario actual y verifico que este logueado y que tenga asignado el rol de administrador
+        Usuario usuarioActual = Sesion.getUsuarioActual();
+        if (usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR) {
+            throw new RuntimeException("No tienes permisos para realizar esta acción");
+        }
+    }
 
-    public void activarUsuario(Usuario admin, int idUsuario) {}
+    // Los administradores están encargados de registrar a sus empleados (Vendedor, editor, y otros administradores)
+    public void crearUsuario(Usuario nuevoUsuario) {
+        validarPermisoAdmin(); // Valido permisos de administrador
 
-    public void suspenderUsuario(Usuario admin, int idUsuario) {}
+        // Reutilizo el metodo agregar con todas sus validaciones para crear este usuario
+        agregar(nuevoUsuario);
+    }
+
+    public void asignarRol(int idUsuario, Rol nuevoRol) {
+        validarPermisoAdmin(); // Valido permisos de administrador
+
+        // Busco al usuario en la BD con su id
+        Usuario usuario = usuarioRepository.buscarPorId(idUsuario);
+        if (usuario == null) {
+            throw new RuntimeException("No se encontró al usuario");
+        }
+
+        // Modifico el rol con el recibido
+        usuario.setRol(nuevoRol);
+        usuarioRepository.actualizar(usuario);
+
+    }
+
+    private void cambiarEstado(int idUsuario, EstadoUsuario nuevoEstado) {
+        validarPermisoAdmin(); // Valido permisos de administrador
+
+        // Busco al usuario en la BD con su id
+        Usuario usuario = usuarioRepository.buscarPorId(idUsuario);
+        if (usuario == null) {
+            throw new RuntimeException("No se encontró al usuario");
+        }
+
+        // Modifico el estado con el recibido
+        usuario.setEstado(nuevoEstado);
+        usuarioRepository.actualizar(usuario);
+    }
+
+    public void activarUsuario(int idUsuario) {
+        cambiarEstado(idUsuario, EstadoUsuario.ACTIVO);
+    }
+
+    public void suspenderUsuario(int idUsuario) {
+        cambiarEstado(idUsuario, EstadoUsuario.SUSPENDIDO);
+    }
 
     // ★゜・。。・゜゜・。。・゜☆ Registro para escritores ☆゜・。。・゜゜・。。・゜★
-    public void registrarEscritor (Usuario nuevoEscritor) {}
+
+    // Los escritores si pueden registrarse ellos mismos
+    public void registrarEscritor (Usuario nuevoEscritor) {
+        // Seteo su rol
+        nuevoEscritor.setRol(Rol.ESCRITOR);
+
+        // Reutilizo el metodo agregar con todas sus validaciones para crear este usuario
+        agregar(nuevoEscritor);
+    }
 
 }

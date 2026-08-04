@@ -33,6 +33,41 @@ public class UsuarioRepositoryImpl extends RepositoryBase<Usuario> implements Us
     }
 
     @Override
+    public boolean existeNombreUsuario(String nombreUsuario) {
+        String sql = "SELECT 1 FROM usuario WHERE nombre_usuario = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, nombreUsuario);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo verificar la existencia del nombre de usuario", e);
+        }
+    }
+
+    @Override
+    public Usuario buscarPorMail(String mail) {
+        String sql = "SELECT * FROM usuario WHERE mail = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, mail);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapear(rs);
+                }
+                return  null;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo buscar el usuario por mail", e);
+        }
+    }
+
+    @Override
     public boolean existeMail(String mail) {
         String sql = "SELECT 1 FROM usuario WHERE mail = ?";
 

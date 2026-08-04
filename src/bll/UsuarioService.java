@@ -26,51 +26,24 @@ public class UsuarioService implements CrudService<Usuario> {
     @Override
     public void agregar(Usuario usuario) {
 
-        // Verifica si el nombre está vacío o si no coincide con el patrón asignado (letras, acentos, ñ, espacios)
-        if (!Validaciones.esTextoValido(usuario.getNombre())) {
-            throw new RuntimeException("El nombre ingresado no es válido");
-        }
-
-        // Verifica si el apellido está vacío o si no coincide con el patrón asignado (letras, acentos, ñ, espacios)
-        if (!Validaciones.esTextoValido(usuario.getApellido())) {
-            throw new RuntimeException("El apellido ingresado no es válido");
-        }
-
-        // Verifica si el DNI está vacío o si no coincide con el patrón asignado (números, rango: 7-9 caracteres)
-        if (!Validaciones.esDniValido(usuario.getDni())) {
-            throw new RuntimeException("El DNI ingresado no es válido");
-        }
-        // Evito duplicación de DNI (pq en la BD lo asigné como unique)
-        if (usuarioRepository.existeDni(usuario.getDni())) {
-            throw new RuntimeException("Ya existe un usuario con el dni ingresado");
-        }
-
-        // Verifica si el celular está vacío o si no coincide con el patrón asignado (números, rango: 8-15 caracteres)
-        if (!Validaciones.esCelularValido(usuario.getCelular())) {
-            throw new RuntimeException("El celular ingresado no es válido");
-        }
-
-        // Verifica si el mail está vacío o si no coincide con el patrón asignado (números, rango: 8-15 caracteres)
-        if (!Validaciones.esMailValido(usuario.getMail())) {
-            throw new RuntimeException("El mail ingresado no tiene un formáto válido");
-        }
-        // Evito duplicación de mail (pq en la BD lo asigné como unique)
-        if (usuarioRepository.existeMail(usuario.getMail())) {
-            throw new RuntimeException("Ya existe un usuario con el mail ingresado");
-        }
-
-        // Verifica si el nombre de usuario está vacío o si no coincide con el patrón asignado (letras(a-A), números, guiones bajos, rango: 4-20 caracteres)
-        if (!Validaciones.esNombreUsuarioValido(usuario.getNombreUsuario())) {
-            throw new RuntimeException("El nombre de usuario debe tener entre 4-20 caracteres, letras, números y guión bajo");
-        }
-        // Evito duplicación de nombre de usuario (pq en la BD lo asigné como unique)
-        if (usuarioRepository.existeNombreUsuario(usuario.getNombreUsuario())) {
-            throw new RuntimeException("Ya existe un usuario con el nombre de usuario ingresado");
-        }
+        // Métodos reutilizables para validar nombre, apellido, DNI y celular | mail, nombre de usuario
+        validarDatosPersonales(usuario);
+        validarDatosCuenta(usuario);
 
         // Verifica que no sea nula, que tenga mínimo 8 caracteres, 1 letra y 1 número
         if (!Validaciones.esContrasenaSegura(usuario.getContrasena())) {
             throw new RuntimeException("La contraseña debe tener al menos 8 caracteres, con letras y números");
+        }
+
+        // Evito duplicación de mail, DNI y nombre de usuario (pq en la BD los asigné como unique)
+        if (usuarioRepository.existeMail(usuario.getMail())) {
+            throw new RuntimeException("Ya existe un usuario con el mail ingresado");
+        }
+        if (usuarioRepository.existeDni(usuario.getDni())) {
+            throw new RuntimeException("Ya existe un usuario con el dni ingresado");
+        }
+        if (usuarioRepository.existeNombreUsuario(usuario.getNombreUsuario())) {
+            throw new RuntimeException("Ya existe un usuario con el nombre de usuario ingresado");
         }
 
         /* Luego de pasar todas las validaciones necesarias:
@@ -89,29 +62,12 @@ public class UsuarioService implements CrudService<Usuario> {
     public void editar(Usuario usuario) {
         validarPermisoAdmin(); // Valido permisos de administrador
 
-        Usuario usuarioExistente = usuarioRepository.buscarPorId(usuario.getId());
-        if (usuarioExistente == null) {
-            throw new RuntimeException("No se encontró al usuario");
-        }
+        // Metodo reutilizable para validar que el usuario existe
+        // Al tomar al usuario no pierdo los datos que no modifico
+        Usuario usuarioExistente = obtenerUsuarioExistente(usuario.getId());
 
-        if (!Validaciones.esTextoValido(usuario.getNombre())) {
-            throw new RuntimeException("El nombre ingresado no es válido");
-        }
-        if (!Validaciones.esTextoValido(usuario.getApellido())) {
-            throw new RuntimeException("El apellido ingresado no es válido");
-        }
-        if (!Validaciones.esDniValido(usuario.getDni())) {
-            throw new RuntimeException("El DNI ingresado no es válido");
-        }
-        if (!Validaciones.esCelularValido(usuario.getCelular())) {
-            throw new RuntimeException("El celular ingresado no es válido");
-        }
-        if (!Validaciones.esMailValido(usuario.getMail())) {
-            throw new RuntimeException("El mail ingresado no tiene un formáto válido");
-        }
-        if (!Validaciones.esNombreUsuarioValido(usuario.getNombreUsuario())) {
-            throw new RuntimeException("El nombre de usuario debe tener entre 4-20 caracteres, letras, números y guión bajo");
-        }
+        validarDatosPersonales(usuario);
+        validarDatosCuenta(usuario);
 
         // Los duplicados los chequeo si realmente cambiaron
         boolean cambioDni = !usuarioExistente.getDni().equals(usuario.getDni());
@@ -194,31 +150,14 @@ public class UsuarioService implements CrudService<Usuario> {
 
     // Acá solo se modifican nombre, apellido, DNI y celular
     public void modificarDatosPersonales(Usuario usuario) {
-        // Tomo el usuario existente en la BD para no perder los datos que no modifico
-        Usuario usuarioExistente = usuarioRepository.buscarPorId(usuario.getId());
-        if (usuarioExistente == null) {
-            throw new RuntimeException("No se encontró el usuario");
-        }
+        Usuario usuarioExistente = obtenerUsuarioExistente(usuario.getId());
+        validarDatosPersonales(usuario);
 
-        if (!Validaciones.esTextoValido(usuario.getNombre())) {
-            throw new RuntimeException("El nombre ingresado no es válido");
-        }
-        if (!Validaciones.esTextoValido(usuario.getApellido())) {
-            throw new RuntimeException("El apellido ingresado no es válido");
-        }
-
-        if (!Validaciones.esDniValido(usuario.getDni())) {
-            throw new RuntimeException("El DNI ingresado no es válido");
-        }
         // Compruebo si el usuario cambió su DNI respecto al que ya tenía guardado
         boolean cambioDni = !usuarioExistente.getDni().equals(usuario.getDni());
         // Si lo modificó, valido que el nuevo no esté registrado ya por otro usuario
         if (cambioDni && usuarioRepository.existeDni(usuario.getDni())) {
             throw new RuntimeException("Ya existe un usuario con el DNI ingresado");
-        }
-
-        if (!Validaciones.esCelularValido(usuario.getCelular())) {
-            throw new RuntimeException("El celular ingresado no es válido");
         }
 
         // Solo edito los campos correspondientes, los que no toco quedan igual a como estaban
@@ -230,23 +169,14 @@ public class UsuarioService implements CrudService<Usuario> {
         usuarioRepository.actualizar(usuarioExistente);
     }
 
+    // Acá solo se modifican mail, nombre de usuario y contraseña
     public void modificarDatosCuenta(Usuario usuario) {
-        // Acá solo se modifican mail, nombre de usuario y contraseña
-        Usuario usuarioExistente = usuarioRepository.buscarPorId(usuario.getId());
-        if (usuarioExistente == null) {
-            throw new RuntimeException("No se encontró al usuario");
-        }
+        Usuario usuarioExistente = obtenerUsuarioExistente(usuario.getId());
+        validarDatosCuenta(usuario);
 
-        if (!Validaciones.esMailValido(usuario.getMail())) {
-            throw new RuntimeException("El mail ingresado no tiene un formáto válido");
-        }
         boolean cambioMail = !usuarioExistente.getMail().equals(usuario.getMail());
         if (cambioMail && usuarioRepository.existeMail(usuario.getMail())) {
             throw new RuntimeException("Ya existe un usuario con el mail ingresado");
-        }
-
-        if (!Validaciones.esNombreUsuarioValido(usuario.getNombreUsuario())) {
-            throw new RuntimeException("El nombre de usuario ingresado no tiene un formáto válido");
         }
         boolean cambioNombreUsuario = !usuarioExistente.getNombreUsuario().equals(usuario.getNombreUsuario());
         if (cambioNombreUsuario && usuarioRepository.existeNombreUsuario(usuario.getNombreUsuario())) {
@@ -282,17 +212,13 @@ public class UsuarioService implements CrudService<Usuario> {
     }
 
     public void eliminarCuentaPropia() {
-        // Obtengo al usuario que está logueado
-        Usuario usuarioActual = Sesion.getUsuarioActual();
-        // Verifico que realmente haya una sesión activa
-        if (usuarioActual == null) {
+        Usuario usuarioActual = Sesion.getUsuarioActual(); // Obtengo al usuario que está logueado
+        if (usuarioActual == null) { // Verifico que realmente haya una sesión activa
             throw new RuntimeException("No hay una sesión iniciada");
         }
 
         usuarioRepository.eliminar(usuarioActual);
-
-        // Cierro la sesión automáticamente después de eliminar la cuenta
-        Sesion.cerrar();
+        Sesion.cerrar(); // Cierro la sesión automáticamente después de eliminar la cuenta
     }
 
     // ★゜・。。・゜゜・。。・゜☆ Gestión de los administradores ☆゜・。。・゜゜・。。・゜★
@@ -315,31 +241,20 @@ public class UsuarioService implements CrudService<Usuario> {
 
     public void asignarRol(int idUsuario, Rol nuevoRol) {
         validarPermisoAdmin(); // Valido permisos de administrador
-
-        // Busco al usuario en la BD con su id
-        Usuario usuario = usuarioRepository.buscarPorId(idUsuario);
-        if (usuario == null) {
-            throw new RuntimeException("No se encontró al usuario");
-        }
+        Usuario usuarioExistente = obtenerUsuarioExistente(idUsuario);
 
         // Modifico el rol con el recibido
-        usuario.setRol(nuevoRol);
-        usuarioRepository.actualizar(usuario);
-
+        usuarioExistente.setRol(nuevoRol);
+        usuarioRepository.actualizar(usuarioExistente);
     }
 
     private void cambiarEstado(int idUsuario, EstadoUsuario nuevoEstado) {
         validarPermisoAdmin(); // Valido permisos de administrador
-
-        // Busco al usuario en la BD con su id
-        Usuario usuario = usuarioRepository.buscarPorId(idUsuario);
-        if (usuario == null) {
-            throw new RuntimeException("No se encontró al usuario");
-        }
+        Usuario usuarioExistente = obtenerUsuarioExistente(idUsuario);
 
         // Modifico el estado con el recibido
-        usuario.setEstado(nuevoEstado);
-        usuarioRepository.actualizar(usuario);
+        usuarioExistente.setEstado(nuevoEstado);
+        usuarioRepository.actualizar(usuarioExistente);
     }
 
     public void activarUsuario(int idUsuario) {
@@ -359,6 +274,53 @@ public class UsuarioService implements CrudService<Usuario> {
 
         // Reutilizo el metodo agregar con todas sus validaciones para crear este usuario
         agregar(nuevoEscritor);
+    }
+
+    // ★゜・。。・゜゜・。。・゜☆ Métodos para reutilizar ☆゜・。。・゜゜・。。・゜★
+
+    private void validarDatosPersonales (Usuario usuario) {
+        // Verifica si el nombre está vacío o si no coincide con el patrón asignado (letras, acentos, ñ, espacios)
+        if (!Validaciones.esTextoValido(usuario.getNombre())) {
+            throw new RuntimeException("El nombre ingresado no es válido");
+        }
+
+        // Verifica si el apellido está vacío o si no coincide con el patrón asignado (letras, acentos, ñ, espacios)
+        if (!Validaciones.esTextoValido(usuario.getApellido())) {
+            throw new RuntimeException("El apellido ingresado no es válido");
+        }
+
+        // Verifica si el DNI está vacío o si no coincide con el patrón asignado (números, rango: 7-9 caracteres)
+        if (!Validaciones.esDniValido(usuario.getDni())) {
+            throw new RuntimeException("El DNI ingresado no es válido");
+        }
+
+        // Verifica si el celular está vacío o si no coincide con el patrón asignado (números, rango: 8-15 caracteres)
+        if (!Validaciones.esCelularValido(usuario.getCelular())) {
+            throw new RuntimeException("El celular ingresado no es válido");
+        }
+    }
+
+    private void validarDatosCuenta (Usuario usuario) {
+        // Verifica si el mail está vacío o si no coincide con el patrón asignado (números, rango: 8-15 caracteres)
+        if (!Validaciones.esMailValido(usuario.getMail())) {
+            throw new RuntimeException("El mail ingresado no tiene un formáto válido");
+        }
+
+        // Verifica si el nombre de usuario está vacío o si no coincide con el patrón asignado (letras(a-A), números, guiones bajos, rango: 4-20 caracteres)
+        if (!Validaciones.esNombreUsuarioValido(usuario.getNombreUsuario())) {
+            throw new RuntimeException("El nombre de usuario debe tener entre 4-20 caracteres, letras, números y guión bajo");
+        }
+    }
+
+    private Usuario obtenerUsuarioExistente(int idUsuario) {
+        // Busco al usuario en la BD con su id
+        Usuario usuarioExistente = usuarioRepository.buscarPorId(idUsuario);
+        // Si no encuentra ningún registro detengo la ejecución
+        if (usuarioExistente == null) {
+            throw new RuntimeException("No se encontró al usuario");
+        }
+        // Si el usuario existe, lo devuelvo
+        return usuarioExistente;
     }
 
 }

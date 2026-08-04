@@ -38,8 +38,17 @@ public class Validaciones {
        - INVALIDO -> ana@@gmail.com / ana@com
     */
 
+    private static final Pattern PATRON_NOMBRE_USUARIO = Pattern.compile("^[a-zA-Z0-9_]{4,20}");
+    /*     - ^ y $: inicio y final de la cadena
+           - [a-zA-Z0-9_]: permite letras (mayúsculas y minúsculas), números y guíon bajo
+           - {4,20}: la longitud debe ser entre 4 y 20 caracteres
+           - VALIDO -> ana.medina@gmail.com
+           - INVALIDO -> ana@@gmail.com / ana@com
+        */
+
     //Constructor privado pq no se instancia esta clase, todos los métodos son de acceso global
-    private Validaciones() {}
+    private Validaciones() {
+    }
 
     // Todos los métodos son static pq no guardo nada, solo evalúan el dato y devuelven true o false
 
@@ -77,6 +86,11 @@ public class Validaciones {
     public static boolean esMailValido(String mail) {
         // Verifico que el mail no sea nulo y que su estructura coincida con la expresión regular establecida
         return mail != null && PATRON_MAIL.matcher(mail).matches();
+    }
+
+    public static boolean esNombreUsuarioValido(String nombreUsuario) {
+        // Verifico que el nombre de usuario no sea nulo y cumpla con el patrón establecido
+        return nombreUsuario != null && PATRON_NOMBRE_USUARIO.matcher(nombreUsuario).matches();
     }
 
     // ★゜・。。・゜゜・。。・゜☆ Validaciones de contraseñas ☆゜・。。・゜゜・。。・゜★
@@ -137,7 +151,7 @@ public class Validaciones {
 
     public static boolean esIsbnValido(String isbn) {
         // Si el ISBN es nulo lo rechazo
-        if (isbn == null)  {
+        if (isbn == null) {
             return false;
         }
         // Como los ISBN se suelen escribir con guiones, los elimino para quedarme solo con los números
